@@ -24,6 +24,9 @@ export interface TrackingItem {
   cost?: number;
   date?: string;
   notes?: string;
+  photoUrl?: string;
+  photoProof?: string;
+  photoTimestamp?: string;
 }
 
 export interface OrderRequest {
@@ -42,6 +45,7 @@ export interface OrderRequest {
   tanggal: string;
   status: 'Baru' | 'Dikonfirmasi' | 'Diproses' | 'Selesai' | 'Dibatalkan';
   estimasiBiaya?: number;
+  photoUrl?: string;
   chat?: {
     dari: 'customer' | 'admin';
     waktu: string;

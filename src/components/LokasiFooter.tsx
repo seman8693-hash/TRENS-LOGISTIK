@@ -11,15 +11,17 @@ import {
   MessageCircle, 
   ExternalLink, 
   Award, 
-  Handshake
+  Handshake,
+  LayoutDashboard
 } from 'lucide-react';
 import { OFFICE_PHONE, OFFICE_PHONE_DISPLAY, WA_NUMBER, WA_NUMBER_DISPLAY } from '../data/logisticData';
 
 interface LokasiFooterProps {
   onOpenKemitraanModal?: () => void;
+  onOpenDashboard?: () => void;
 }
 
-export const LokasiFooter: React.FC<LokasiFooterProps> = ({ onOpenKemitraanModal }) => {
+export const LokasiFooter: React.FC<LokasiFooterProps> = ({ onOpenKemitraanModal, onOpenDashboard }) => {
   return (
     <>
       {/* Lokasi Kantor Pusat & Map */}
@@ -180,12 +182,23 @@ export const LokasiFooter: React.FC<LokasiFooterProps> = ({ onOpenKemitraanModal
                   onClick={onOpenKemitraanModal || (() => {
                     document.getElementById('kemitraan')?.scrollIntoView({ behavior: 'smooth' });
                   })}
-                  className="hover:text-amber-400 text-amber-300 font-semibold transition-colors flex items-center gap-1.5 text-left"
+                  className="hover:text-amber-400 text-amber-300 font-semibold transition-colors flex items-center gap-1.5 text-left cursor-pointer"
                 >
                   <Handshake className="w-3.5 h-3.5 text-amber-400" />
                   <span>Daftar Kemitraan Pengiriman</span>
                 </button>
               </li>
+              {onOpenDashboard && (
+                <li>
+                  <button 
+                    onClick={onOpenDashboard}
+                    className="hover:text-amber-400 text-slate-300 hover:text-white font-semibold transition-colors flex items-center gap-1.5 text-left cursor-pointer pt-1"
+                  >
+                    <LayoutDashboard className="w-3.5 h-3.5 text-blue-400" />
+                    <span>Dashboard Admin &amp; Operasional</span>
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
 

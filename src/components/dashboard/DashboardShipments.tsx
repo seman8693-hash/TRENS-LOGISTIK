@@ -15,7 +15,11 @@ import {
   Truck,
   Ship,
   Plane,
-  AlertCircle
+  AlertCircle,
+  Camera,
+  ZoomIn,
+  X,
+  Image as ImageIcon
 } from 'lucide-react';
 import { TrackingItem, ShipmentStatus, ShipmentMode } from '../../types';
 import { rupiah } from '../../data/logisticData';
@@ -39,6 +43,7 @@ export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
   const [statusFilter, setStatusFilter] = useState<string>('Semua');
   const [modaFilter, setModaFilter] = useState<string>('Semua');
   const [expandedResi, setExpandedResi] = useState<string | null>(null);
+  const [selectedPreviewPhoto, setSelectedPreviewPhoto] = useState<{ url: string; title: string } | null>(null);
 
   const entries = Object.entries(tracks) as [string, TrackingItem][];
 
@@ -206,7 +211,22 @@ export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
                               {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                             </button>
                           </div>
-                          <p className="text-[10px] text-slate-400">{t.date || 'Aktif'}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[10px] text-slate-400">{t.date || 'Aktif'}</span>
+                            {(t.photoUrl || t.photoProof) && (
+                              <button
+                                onClick={() => setSelectedPreviewPhoto({
+                                  url: (t.photoProof || t.photoUrl)!,
+                                  title: t.photoProof ? `Foto Bukti POD - Resi ${resi}` : `Foto Fisik Paket - Resi ${resi}`
+                                })}
+                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 text-[9px] font-bold border border-amber-200 transition-colors"
+                                title="Klik untuk lihat foto dokumentasi"
+                              >
+                                <Camera className="w-2.5 h-2.5 text-amber-600" />
+                                <span>{t.photoProof ? 'POD' : 'Foto'}</span>
+                              </button>
+                            )}
+                          </div>
                         </td>
 
                         {/* Kargo Info */}
@@ -309,35 +329,125 @@ export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
 
                       </tr>
 
-                      {/* Expandable Row: Checkpoint History */}
+                      {/* Expandable Row: Checkpoint History & Photo Documentation */}
                       {isExpanded && (
                         <tr className="bg-slate-50/70 border-b border-slate-200">
                           <td colSpan={7} className="p-4 sm:px-8">
-                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
-                              <div className="flex items-center justify-between">
-                                <h4 className="text-xs font-bold text-slate-800 flex items-center gap-2 uppercase tracking-wide">
-                                  <Clock className="w-4 h-4 text-blue-600" />
-                                  <span>Riwayat Checkpoint Perjalanan ({t.history?.length || 0} Titik)</span>
-                                </h4>
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                              
+                              {/* Left: Checkpoints (2 cols on lg) */}
+                              <div className="lg:col-span-2 bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <h4 className="text-xs font-bold text-slate-800 flex items-center gap-2 uppercase tracking-wide">
+                                    <Clock className="w-4 h-4 text-blue-600" />
+                                    <span>Riwayat Checkpoint Perjalanan ({t.history?.length || 0} Titik)</span>
+                                  </h4>
+                                  <button
+                                    onClick={() => onSelectUpdateResi(resi)}
+                                    className="text-xs text-blue-700 font-bold hover:underline"
+                                  >
+                                    + Tambah Checkpoint
+                                  </button>
+                                </div>
+
+                                <div className="space-y-2 border-l-2 border-blue-200 ml-2 pl-4 py-1 max-h-64 overflow-y-auto">
+                                  {t.history?.map((cp, idx) => (
+                                    <div key={idx} className="relative">
+                                      <span className={`absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full ${
+                                        cp.s === 'current' ? 'bg-amber-500 ring-4 ring-amber-100' : 'bg-blue-600'
+                                      }`} />
+                                      <p className="font-semibold text-slate-800 text-xs">{cp.k}</p>
+                                      <span className="text-[10px] text-slate-400 font-mono">{cp.w}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Right: Foto Dokumentasi (Fisik & POD) */}
+                              <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3 flex flex-col justify-between">
+                                <div>
+                                  <div className="flex items-center justify-between mb-2.5">
+                                    <h4 className="text-xs font-bold text-slate-800 flex items-center gap-2 uppercase tracking-wide">
+                                      <Camera className="w-4 h-4 text-amber-600" />
+                                      <span>Dokumentasi Foto Paket</span>
+                                    </h4>
+                                    <button
+                                      onClick={() => onSelectUpdateResi(resi)}
+                                      className="text-xs text-blue-700 font-bold hover:underline"
+                                    >
+                                      Kelola Foto
+                                    </button>
+                                  </div>
+
+                                  <div className="space-y-3">
+                                    {/* Foto Fisik Paket */}
+                                    <div>
+                                      <span className="text-[10px] font-bold text-slate-400 uppercase">Foto Fisik Kargo</span>
+                                      {t.photoUrl ? (
+                                        <div 
+                                          onClick={() => setSelectedPreviewPhoto({
+                                            url: t.photoUrl!,
+                                            title: `Foto Fisik Paket - Resi ${resi}`
+                                          })}
+                                          className="mt-1 relative h-28 rounded-lg overflow-hidden border border-slate-200 cursor-pointer group bg-slate-100"
+                                        >
+                                          <img 
+                                            src={t.photoUrl} 
+                                            alt="Fisik Kargo" 
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                                          />
+                                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold gap-1">
+                                            <ZoomIn className="w-3.5 h-3.5" />
+                                            <span>Perbesar</span>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div className="mt-1 h-14 rounded-lg border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-slate-400 text-[11px] gap-1.5">
+                                          <ImageIcon className="w-3.5 h-3.5" />
+                                          <span>Belum ada foto fisik</span>
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    {/* Foto Bukti Serah Terima (POD) */}
+                                    <div>
+                                      <span className="text-[10px] font-bold text-slate-400 uppercase">Bukti Serah Terima (POD)</span>
+                                      {t.photoProof ? (
+                                        <div 
+                                          onClick={() => setSelectedPreviewPhoto({
+                                            url: t.photoProof!,
+                                            title: `Bukti Serah Terima (POD) - Resi ${resi}`
+                                          })}
+                                          className="mt-1 relative h-28 rounded-lg overflow-hidden border border-emerald-200 cursor-pointer group bg-emerald-50/50"
+                                        >
+                                          <img 
+                                            src={t.photoProof} 
+                                            alt="Bukti POD" 
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                                          />
+                                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold gap-1">
+                                            <ZoomIn className="w-3.5 h-3.5" />
+                                            <span>Perbesar POD</span>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div className="mt-1 h-14 rounded-lg border border-dashed border-slate-200 bg-slate-50 flex items-center justify-center text-slate-400 text-[11px] gap-1.5">
+                                          <ImageIcon className="w-3.5 h-3.5" />
+                                          <span>Belum ada foto POD</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
                                 <button
                                   onClick={() => onSelectUpdateResi(resi)}
-                                  className="text-xs text-blue-700 font-bold hover:underline"
+                                  className="w-full mt-2 py-1.5 bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 text-xs font-semibold rounded-lg border border-slate-200 transition-colors text-center"
                                 >
-                                  + Tambah Checkpoint
+                                  + Upload / Update Foto
                                 </button>
                               </div>
 
-                              <div className="space-y-2 border-l-2 border-blue-200 ml-2 pl-4 py-1">
-                                {t.history?.map((cp, idx) => (
-                                  <div key={idx} className="relative">
-                                    <span className={`absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full ${
-                                      cp.s === 'current' ? 'bg-amber-500 ring-4 ring-amber-100' : 'bg-blue-600'
-                                    }`} />
-                                    <p className="font-semibold text-slate-800 text-xs">{cp.k}</p>
-                                    <span className="text-[10px] text-slate-400 font-mono">{cp.w}</span>
-                                  </div>
-                                ))}
-                              </div>
                             </div>
                           </td>
                         </tr>
@@ -350,6 +460,43 @@ export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
           </table>
         </div>
       </div>
+
+      {/* Lightbox Modal for Photo Preview */}
+      {selectedPreviewPhoto && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setSelectedPreviewPhoto(null)}
+        >
+          <div 
+            className="relative max-w-4xl max-h-[90vh] bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border border-white/20 p-2 flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-3 py-2 text-white border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-amber-400" />
+                <span className="text-xs font-bold">{selectedPreviewPhoto.title}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedPreviewPhoto(null)}
+                className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-2 flex items-center justify-center max-h-[75vh] overflow-hidden">
+              <img 
+                src={selectedPreviewPhoto.url} 
+                alt={selectedPreviewPhoto.title} 
+                className="max-h-[72vh] max-w-full object-contain rounded-lg shadow-lg"
+              />
+            </div>
+            <div className="px-3 py-1.5 text-center text-[11px] text-white/60">
+              Klik di luar gambar atau tombol silang untuk menutup
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

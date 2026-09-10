@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Calculator, 
   Truck, 
@@ -13,10 +13,12 @@ import {
   MessageCircle,
   Clock,
   Sparkles,
-  RotateCcw
+  RotateCcw,
+  Send
 } from 'lucide-react';
 import { ShipmentMode, CalculationResult } from '../types';
-import { CITIES, DEFAULT_RATES, DAYS, MIN_BIAYA, WA_NUMBER, rupiah, zonePair } from '../data/logisticData';
+import { CITIES, DEFAULT_RATES, getStoredRates, DAYS, MIN_BIAYA, WA_NUMBER, rupiah, zonePair } from '../data/logisticData';
+import { BookingPickupModal } from './BookingPickupModal';
 
 export const KalkulatorSection: React.FC = () => {
   const [mode, setMode] = useState<ShipmentMode>('Darat');
@@ -27,14 +29,16 @@ export const KalkulatorSection: React.FC = () => {
   const [panjang, setPanjang] = useState<string>('50');
   const [lebar, setLebar] = useState<string>('40');
   const [tinggi, setTinggi] = useState<string>('30');
+  const [showBookingModal, setShowBookingModal] = useState(false);
   
   const [hasil, setHasil] = useState<CalculationResult | null>(() => {
     // Initial default calculation for Jakarta -> Medan 25kg Darat
+    const activeRates = getStoredRates();
     const p = 50, l = 40, t = 30, b = 25;
     const vol = (p * l * t) / 4000;
     const chg = Math.max(b, vol);
     const key = zonePair(CITIES['jakarta'].z, CITIES['medan'].z);
-    const tarif = DEFAULT_RATES['Darat'][key] || 4500;
+    const tarif = activeRates['Darat']?.[key] || DEFAULT_RATES['Darat'][key] || 4500;
     const total = Math.max(chg * tarif, MIN_BIAYA);
     return {
       beratAktual: b,
@@ -87,7 +91,8 @@ export const KalkulatorSection: React.FC = () => {
     const volKg = (p > 0 && l > 0 && t > 0) ? (p * l * t) / pembagi : 0;
     const chg = Math.max(b, volKg);
     const key = zonePair(CITIES[asal].z, CITIES[tujuan].z);
-    const tarifKg = DEFAULT_RATES[mode][key] || 5000;
+    const currentStoredRates = getStoredRates();
+    const tarifKg = currentStoredRates[mode]?.[key] || DEFAULT_RATES[mode][key] || 5000;
     let rawTotal = chg * tarifKg;
     const kenaMin = rawTotal < MIN_BIAYA;
     const totalBiaya = kenaMin ? MIN_BIAYA : rawTotal;
@@ -476,19 +481,29 @@ export const KalkulatorSection: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Bottom WhatsApp CTA */}
-                <div className="mt-6 pt-4 border-t border-white/15">
+                {/* Bottom Action CTAs */}
+                <div className="mt-6 pt-4 border-t border-white/15 space-y-2.5">
+                  <button
+                    id="btn-pesan-online-calc"
+                    type="button"
+                    onClick={() => setShowBookingModal(true)}
+                    className="w-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black py-3.5 px-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm hover:scale-101 cursor-pointer"
+                  >
+                    <Send className="w-4 h-4 text-slate-950" />
+                    <span>🚚 Pesan Penjemputan Online Sekarang</span>
+                  </button>
+
                   <a
                     id="btn-pesan-wa-calc"
                     href={generateWhatsAppLink()}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-extrabold py-3.5 px-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 text-sm"
+                    className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-extrabold py-3 px-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 text-xs"
                   >
-                    <MessageCircle className="w-5 h-5 fill-white" />
-                    <span>Pesan via WhatsApp Langsung</span>
+                    <MessageCircle className="w-4 h-4 fill-white" />
+                    <span>Atau Pesan via WhatsApp Langsung</span>
                   </a>
-                  <p className="text-[10px] text-white/60 text-center mt-2">
+                  <p className="text-[10px] text-white/60 text-center mt-1">
                     *Tarif estimasi. Nilai final dikonfirmasi setelah penimbangan fisik di gudang.
                   </p>
                 </div>
@@ -508,6 +523,13 @@ export const KalkulatorSection: React.FC = () => {
         </div>
 
       </div>
+
+      {/* Booking Pickup Modal */}
+      <BookingPickupModal
+        isOpen={showBookingModal}
+        onClose={() => setShowBookingModal(false)}
+        calcData={hasil}
+      />
     </section>
   );
 };

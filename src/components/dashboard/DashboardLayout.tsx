@@ -199,6 +199,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       cost: order.estimasiBiaya || 100000,
       date: todayFormatted,
       notes: order.catatan || 'Order penjemputan dari website',
+      photoUrl: order.photoUrl,
+      photoTimestamp: order.photoUrl ? `${todayFormatted} ${timeFormatted}` : undefined,
       history: [
         {
           w: `${todayFormatted} ${timeFormatted}`,

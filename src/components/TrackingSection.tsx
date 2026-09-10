@@ -14,7 +14,12 @@ import {
   RefreshCw,
   RotateCcw,
   Printer,
-  Sparkles
+  Sparkles,
+  Camera,
+  ZoomIn,
+  X,
+  Image as ImageIcon,
+  ShieldCheck
 } from 'lucide-react';
 import { TrackingItem } from '../types';
 import { getStoredTracks, saveStoredTracks, rupiah } from '../data/logisticData';
@@ -30,6 +35,7 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({ onPrintLabel }
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [lightboxPhoto, setLightboxPhoto] = useState<{ url: string; title: string } | null>(null);
 
   const handleResetSearch = () => {
     setResiInput('');
@@ -365,10 +371,135 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({ onPrintLabel }
               </div>
             </div>
 
+            {/* Dokumentasi Foto Fisik & Bukti Serah Terima (POD) */}
+            {(activeTrack.data.photoUrl || activeTrack.data.photoProof) && (
+              <div className="pt-6 border-t border-slate-100 mt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-sm font-bold text-[#0B1B4D] flex items-center gap-2">
+                    <Camera className="w-4 h-4 text-amber-600" />
+                    <span>Dokumentasi Foto Paket &amp; Bukti Lapangan</span>
+                  </h4>
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Terverifikasi Sistem</span>
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Foto Fisik Paket */}
+                  {activeTrack.data.photoUrl && (
+                    <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                          <ImageIcon className="w-3.5 h-3.5 text-blue-600" />
+                          <span>Foto Fisik Saat Diterima Hub</span>
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-mono">
+                          {activeTrack.data.photoTimestamp || activeTrack.data.date}
+                        </span>
+                      </div>
+                      <div 
+                        onClick={() => setLightboxPhoto({
+                          url: activeTrack.data.photoUrl!,
+                          title: `Foto Fisik Paket Kargo - ${activeTrack.no}`
+                        })}
+                        className="relative h-44 rounded-xl overflow-hidden border border-slate-200 cursor-pointer group bg-slate-200 shadow-xs"
+                      >
+                        <img 
+                          src={activeTrack.data.photoUrl} 
+                          alt="Foto Fisik Kargo" 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold gap-1.5">
+                          <ZoomIn className="w-4 h-4" />
+                          <span>Klik untuk Memperbesar</span>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-2 text-center">
+                        Dokumentasi visual paket kargo saat proses administrasi &amp; timbang di hub
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Foto Bukti Serah Terima (POD) */}
+                  {activeTrack.data.photoProof && (
+                    <div className="bg-emerald-50/50 p-3.5 rounded-2xl border border-emerald-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>Bukti Serah Terima Penerima (POD)</span>
+                        </span>
+                        <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-100 px-2 py-0.5 rounded-full">
+                          Selesai
+                        </span>
+                      </div>
+                      <div 
+                        onClick={() => setLightboxPhoto({
+                          url: activeTrack.data.photoProof!,
+                          title: `Bukti Serah Terima (POD) - ${activeTrack.no}`
+                        })}
+                        className="relative h-44 rounded-xl overflow-hidden border border-emerald-300 cursor-pointer group bg-emerald-100/50 shadow-xs"
+                      >
+                        <img 
+                          src={activeTrack.data.photoProof} 
+                          alt="Bukti Serah Terima" 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold gap-1.5">
+                          <ZoomIn className="w-4 h-4" />
+                          <span>Klik untuk Memperbesar POD</span>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-emerald-800 mt-2 text-center font-medium">
+                        Foto bukti serah terima kepada penerima: {activeTrack.data.recipient || 'Pelanggan'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
           </div>
         )}
 
       </div>
+
+      {/* Lightbox Modal */}
+      {lightboxPhoto && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setLightboxPhoto(null)}
+        >
+          <div 
+            className="relative max-w-4xl max-h-[90vh] bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border border-white/20 p-2 flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-3 py-2 text-white border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-4 h-4 text-amber-400" />
+                <span className="text-xs font-bold">{lightboxPhoto.title}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setLightboxPhoto(null)}
+                className="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="p-2 flex items-center justify-center max-h-[75vh] overflow-hidden">
+              <img 
+                src={lightboxPhoto.url} 
+                alt={lightboxPhoto.title} 
+                className="max-h-[72vh] max-w-full object-contain rounded-lg"
+              />
+            </div>
+            <div className="px-3 py-1.5 text-center text-[11px] text-white/60">
+              Klik di luar gambar atau tombol silang untuk menutup
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Package, Truck, Ship, Plane, Calculator, Check, ArrowRight } from 'lucide-react';
 import { ShipmentMode, TrackingItem, ShipmentStatus } from '../../types';
 import { CITIES, DEFAULT_RATES, zonePair, rupiah, MIN_BIAYA } from '../../data/logisticData';
+import { PhotoUploadDropzone } from '../PhotoUploadDropzone';
 
 interface CreateShipmentModalProps {
   isOpen: boolean;
@@ -39,6 +40,7 @@ export const CreateShipmentModal: React.FC<CreateShipmentModalProps> = ({
   const [tinggi, setTinggi] = useState<number>(20);
   const [notes, setNotes] = useState('');
   const [customCost, setCustomCost] = useState<number | null>(null);
+  const [photoUrl, setPhotoUrl] = useState<string | undefined>(undefined);
 
   if (!isOpen) return null;
 
@@ -88,6 +90,8 @@ export const CreateShipmentModal: React.FC<CreateShipmentModalProps> = ({
       cost: finalCost,
       date: todayFormatted,
       notes: notes || undefined,
+      photoUrl: photoUrl || undefined,
+      photoTimestamp: photoUrl ? `${todayFormatted} ${timeFormatted}` : undefined,
       history: [
         {
           w: `${todayFormatted} ${timeFormatted}`,
@@ -190,6 +194,16 @@ export const CreateShipmentModal: React.FC<CreateShipmentModalProps> = ({
               onChange={(e) => setNamaBarang(e.target.value)}
               required
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+            />
+          </div>
+
+          {/* Upload Foto Fisik Barang */}
+          <div className="bg-slate-50/80 p-4 rounded-xl border border-slate-200">
+            <PhotoUploadDropzone
+              label="Foto Fisik Barang / Paket Kargo (Opsional)"
+              subLabel="Tarik &amp; lepas foto atau ambil via kamera HP untuk bukti penerimaan fisik di gudang/hub"
+              currentPhotoUrl={photoUrl}
+              onPhotoChange={setPhotoUrl}
             />
           </div>
 

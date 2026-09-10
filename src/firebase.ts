@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { 
-  getFirestore, 
+  initializeFirestore,
+  getFirestore,
   doc, 
   getDoc, 
   setDoc, 
@@ -25,10 +26,34 @@ const app = getApps().length > 0 ? getApp() : initializeApp({
   appId: firebaseConfig.appId,
 });
 
-// Use provisioned Firestore Database ID
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId || undefined);
+// Use provisioned Firestore Database ID with experimentalForceLongPolling enabled for iframe/proxy environments
+let firestoreInstance;
+try {
+  firestoreInstance = initializeFirestore(
+    app,
+    {
+      experimentalForceLongPolling: true,
+    },
+    firebaseConfig.firestoreDatabaseId || undefined
+  );
+} catch (e) {
+  console.warn('Using existing or default getFirestore instance:', e);
+  firestoreInstance = getFirestore(app, firebaseConfig.firestoreDatabaseId || undefined);
+}
+
+export const db = firestoreInstance;
 export const auth = getAuth(app);
 export const isFirebaseReady = Boolean(firebaseConfig.projectId);
+
+// Helper to prevent hanging operations if network is unavailable
+function withTimeout<T>(promise: Promise<T>, ms: number = 4000): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`Firestore request timed out after ${ms}ms`)), ms)
+    ),
+  ]);
+}
 
 /**
  * Fetch a single shipment by Resi from Firestore
@@ -37,13 +62,13 @@ export async function getShipmentFromDb(resi: string): Promise<TrackingItem | nu
   try {
     const cleanResi = resi.trim().toUpperCase();
     const docRef = doc(db, 'shipments', cleanResi);
-    const snap = await getDoc(docRef);
+    const snap = await withTimeout(getDoc(docRef), 3500);
     if (snap.exists()) {
       return snap.data() as TrackingItem;
     }
     return null;
   } catch (err) {
-    console.warn('Firestore fetch shipment error:', err);
+    console.warn('Firestore fetch shipment error/timeout:', err);
     return null;
   }
 }
@@ -165,7 +190,7 @@ export async function seedInitialFirestoreData(): Promise<void> {
   try {
     const shipmentsCol = collection(db, 'shipments');
     const qShip = query(shipmentsCol, limit(1));
-    const snapShip = await getDocs(qShip);
+    const snapShip = await withTimeout(getDocs(qShip), 3000);
 
     if (snapShip.empty) {
       console.log('Seeding initial shipments into Firestore...');
@@ -180,7 +205,7 @@ export async function seedInitialFirestoreData(): Promise<void> {
 
     const ordersCol = collection(db, 'orders');
     const qOrders = query(ordersCol, limit(1));
-    const snapOrders = await getDocs(qOrders);
+    const snapOrders = await withTimeout(getDocs(qOrders), 3000);
 
     if (snapOrders.empty) {
       console.log('Seeding initial orders into Firestore...');
@@ -191,7 +216,7 @@ export async function seedInitialFirestoreData(): Promise<void> {
 
     const partnersCol = collection(db, 'partners');
     const qPartners = query(partnersCol, limit(1));
-    const snapPartners = await getDocs(qPartners);
+    const snapPartners = await withTimeout(getDocs(qPartners), 3000);
 
     if (snapPartners.empty) {
       console.log('Seeding initial partners into Firestore...');
@@ -200,6 +225,6 @@ export async function seedInitialFirestoreData(): Promise<void> {
       }
     }
   } catch (err) {
-    console.warn('Firestore auto-seed check skipped or encountered error:', err);
+    console.warn('Firestore auto-seed check skipped or offline mode active:', err);
   }
 }

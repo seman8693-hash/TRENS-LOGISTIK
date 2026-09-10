@@ -8,15 +8,18 @@ import {
   Search, 
   Calculator,
   MessageCircle,
-  Handshake
+  Handshake,
+  LayoutDashboard,
+  ShieldCheck
 } from 'lucide-react';
 import { OFFICE_PHONE, OFFICE_PHONE_DISPLAY, WA_NUMBER, WA_NUMBER_DISPLAY } from '../data/logisticData';
 
 interface NavbarProps {
   onOpenKemitraanModal?: () => void;
+  onOpenDashboard?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenKemitraanModal }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onOpenKemitraanModal, onOpenDashboard }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -101,6 +104,19 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenKemitraanModal }) => {
 
           {/* Action Buttons */}
           <div className="hidden sm:flex items-center gap-2.5">
+            {/* Dashboard Admin CTA Button */}
+            {onOpenDashboard && (
+              <button
+                id="btn-nav-dashboard"
+                onClick={onOpenDashboard}
+                className="inline-flex items-center gap-1.5 bg-[#0B1B4D] hover:bg-blue-950 text-white hover:text-amber-300 font-bold px-3.5 py-2 text-xs rounded-xl shadow-xs border border-blue-900 transition-all hover:scale-102 cursor-pointer"
+                title="Buka Dashboard Admin & Operasional"
+              >
+                <LayoutDashboard className="w-3.5 h-3.5 text-amber-400" />
+                <span>Dashboard Admin</span>
+              </button>
+            )}
+
             {/* Daftar Kemitraan CTA Button */}
             <button
               id="btn-nav-kemitraan"
@@ -174,6 +190,24 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenKemitraanModal }) => {
             >
               Lacak Nomor Resi
             </a>
+
+            {onOpenDashboard && (
+              <button 
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenDashboard();
+                }}
+                className="w-full text-left py-2.5 px-3 bg-[#0B1B4D] hover:bg-blue-950 text-white rounded-lg font-bold flex items-center justify-between"
+              >
+                <div className="flex items-center gap-2">
+                  <LayoutDashboard className="w-4 h-4 text-amber-400" />
+                  <span>Dashboard Admin Operasional</span>
+                </div>
+                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold">
+                  Live DB
+                </span>
+              </button>
+            )}
 
             <button 
               onClick={() => {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { LayoutDashboard } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { LayananSection } from './components/LayananSection';
@@ -28,6 +29,17 @@ export default function App() {
     seedInitialFirestoreData().catch((err) => {
       console.warn('Firebase seeding notice:', err);
     });
+
+    const handleHashChange = () => {
+      if (window.location.hash === '#dashboard') {
+        setViewMode('dashboard');
+      } else {
+        setViewMode('website');
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
   const [showKemitraanModal, setShowKemitraanModal] = useState<boolean>(false);
@@ -35,6 +47,12 @@ export default function App() {
 
   const handlePrintLabel = (resi: string, track: TrackingItem) => {
     setPrintLabelData({ resi, track });
+  };
+
+  const handleOpenDashboard = () => {
+    window.location.hash = '#dashboard';
+    setViewMode('dashboard');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // If in Dashboard View Mode
@@ -45,6 +63,7 @@ export default function App() {
           onBackToWebsite={() => {
             window.location.hash = '';
             setViewMode('website');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
           onPrintLabel={handlePrintLabel}
         />
@@ -67,6 +86,7 @@ export default function App() {
       {/* 1. Header & Navigation */}
       <Navbar 
         onOpenKemitraanModal={() => setShowKemitraanModal(true)}
+        onOpenDashboard={handleOpenDashboard}
       />
 
       {/* 2. Hero Section with Value Propositions & Quick Check */}
@@ -102,7 +122,29 @@ export default function App() {
       {/* 10. Lokasi Kantor, Google Maps, Footer & Floating WhatsApp */}
       <LokasiFooter 
         onOpenKemitraanModal={() => setShowKemitraanModal(true)}
+        onOpenDashboard={handleOpenDashboard}
       />
+
+      {/* Quick Switcher Dock: Jump to Dashboard Admin */}
+      <div className="fixed bottom-6 left-6 z-40 hidden sm:block">
+        <button
+          id="btn-floating-dashboard"
+          onClick={handleOpenDashboard}
+          className="group bg-[#0B1B4D] hover:bg-blue-950 text-white font-bold px-4 py-2.5 rounded-2xl shadow-2xl border border-blue-800/90 flex items-center gap-2.5 text-xs transition-all hover:scale-105 cursor-pointer"
+          title="Buka Dashboard Admin Logistik & Operasional"
+        >
+          <div className="w-6 h-6 rounded-lg bg-amber-400 text-slate-950 flex items-center justify-center font-black">
+            <LayoutDashboard className="w-3.5 h-3.5 text-[#0B1B4D]" />
+          </div>
+          <div className="text-left">
+            <div className="flex items-center gap-1.5">
+              <span className="text-amber-300 font-extrabold">Dashboard Admin</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            </div>
+            <p className="text-[10px] text-blue-200 font-normal">Live Integrasi Website</p>
+          </div>
+        </button>
+      </div>
 
       {/* Modal: Pendaftaran Kemitraan Pengiriman */}
       <KemitraanModal 

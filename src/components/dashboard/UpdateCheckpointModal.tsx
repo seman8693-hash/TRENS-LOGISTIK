@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, Navigation, CheckCircle2, Clock, Plus, Trash2, ArrowRight } from 'lucide-react';
+import { X, Navigation, CheckCircle2, Clock, Plus, Trash2, ArrowRight, Camera } from 'lucide-react';
 import { TrackingItem, ShipmentStatus, TrackingCheckpoint } from '../../types';
+import { PhotoUploadDropzone } from '../PhotoUploadDropzone';
 
 interface UpdateCheckpointModalProps {
   isOpen: boolean;
@@ -20,6 +21,8 @@ export const UpdateCheckpointModal: React.FC<UpdateCheckpointModalProps> = ({
   const [status, setStatus] = useState<ShipmentStatus>(item.status);
   const [newCheckpointText, setNewCheckpointText] = useState('');
   const [checkpoints, setCheckpoints] = useState<TrackingCheckpoint[]>([...item.history]);
+  const [photoUrl, setPhotoUrl] = useState<string | undefined>(item.photoUrl);
+  const [photoProof, setPhotoProof] = useState<string | undefined>(item.photoProof);
 
   if (!isOpen) return null;
 
@@ -55,7 +58,10 @@ export const UpdateCheckpointModal: React.FC<UpdateCheckpointModalProps> = ({
     const updatedItem: TrackingItem = {
       ...item,
       status,
-      history: checkpoints
+      history: checkpoints,
+      photoUrl: photoUrl || undefined,
+      photoProof: photoProof || undefined,
+      photoTimestamp: (photoUrl || photoProof) ? (item.photoTimestamp || new Date().toLocaleString('id-ID')) : undefined
     };
     onUpdate(resi, updatedItem);
     onClose();
@@ -195,6 +201,45 @@ export const UpdateCheckpointModal: React.FC<UpdateCheckpointModalProps> = ({
                   </div>
                 ))
               )}
+            </div>
+          </div>
+
+          {/* Section Upload Foto: Fisik Paket & Bukti Pengiriman (POD) */}
+          <div className="space-y-4 pt-2 border-t border-slate-200">
+            <h4 className="text-xs font-bold uppercase text-slate-700 flex items-center gap-2">
+              <Camera className="w-3.5 h-3.5 text-blue-700" />
+              <span>Dokumentasi Foto Pengiriman</span>
+            </h4>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Foto Fisik Barang / Paket */}
+              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                <PhotoUploadDropzone
+                  label="Foto Fisik Barang / Paket"
+                  subLabel="Foto paket saat penimbangan atau di gudang hub"
+                  currentPhotoUrl={photoUrl}
+                  onPhotoChange={setPhotoUrl}
+                />
+              </div>
+
+              {/* Foto Bukti Serah Terima (POD) */}
+              <div className={`p-3.5 rounded-xl border transition-all ${
+                status === 'Terkirim'
+                  ? 'bg-emerald-50/70 border-emerald-300'
+                  : 'bg-slate-50 border-slate-200'
+              }`}>
+                <PhotoUploadDropzone
+                  label="Foto Bukti Penerimaan (POD)"
+                  subLabel={
+                    status === 'Terkirim'
+                      ? 'Wajib / direkomendasikan untuk status Terkirim'
+                      : 'Foto serah terima tanda tangan / penerima di lokasi'
+                  }
+                  currentPhotoUrl={photoProof}
+                  onPhotoChange={setPhotoProof}
+                  required={status === 'Terkirim'}
+                />
+              </div>
             </div>
           </div>
 
