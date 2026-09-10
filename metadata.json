@@ -1,0 +1,6 @@
+{
+  "name": "TRENS-LOGISTIC — Ekspedisi Darat, Laut & Udara",
+  "description": "Sistem informasi logistik, kalkulator ongkir volumetrik, pelacakan resi real-time, dan manajemen pengiriman nusantara.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

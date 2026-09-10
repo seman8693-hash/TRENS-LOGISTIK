@@ -1,0 +1,76 @@
+{
+  "entities": {
+    "Shipment": {
+      "description": "Shipping resi tracking data",
+      "properties": {
+        "resi": { "type": "string" },
+        "nama": { "type": "string" },
+        "rute": { "type": "string" },
+        "status": { "type": "string" },
+        "posisi": { "type": "string" },
+        "layanan": { "type": "string" },
+        "estimasi": { "type": "string" },
+        "berat": { "type": "string" },
+        "koli": { "type": "number" },
+        "moda": { "type": "string" },
+        "pengirim": { "type": "string" },
+        "penerima": { "type": "string" },
+        "tanggal": { "type": "string" },
+        "biaya": { "type": "number" },
+        "history": { "type": "array" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["resi", "nama", "status"]
+    },
+    "OrderRequest": {
+      "description": "Customer order & pickup requests",
+      "properties": {
+        "id": { "type": "string" },
+        "namaPengirim": { "type": "string" },
+        "teleponPengirim": { "type": "string" },
+        "kotaAsal": { "type": "string" },
+        "alamatPickup": { "type": "string" },
+        "kotaTujuan": { "type": "string" },
+        "namaPenerima": { "type": "string" },
+        "teleponPenerima": { "type": "string" },
+        "layanan": { "type": "string" },
+        "moda": { "type": "string" },
+        "estimasiBerat": { "type": "number" },
+        "deskripsiBarang": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "namaPengirim", "teleponPengirim", "kotaAsal", "kotaTujuan"]
+    },
+    "PartnerLead": {
+      "description": "Partnership registration leads",
+      "properties": {
+        "id": { "type": "string" },
+        "nama": { "type": "string" },
+        "perusahaan": { "type": "string" },
+        "email": { "type": "string" },
+        "whatsapp": { "type": "string" },
+        "kota": { "type": "string" },
+        "kategori": { "type": "string" },
+        "catatan": { "type": "string" },
+        "status": { "type": "string" },
+        "tanggal": { "type": "string" }
+      },
+      "required": ["id", "nama", "whatsapp", "kota", "kategori"]
+    }
+  },
+  "firestore": {
+    "/shipments/{resi}": {
+      "schema": "Shipment",
+      "description": "Public and operational shipment tracking"
+    },
+    "/orders/{orderId}": {
+      "schema": "OrderRequest",
+      "description": "Order and pickup requests"
+    },
+    "/partners/{partnerId}": {
+      "schema": "PartnerLead",
+      "description": "Partnership applicant leads"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Shipments can be read by anyone (public resi tracking), written by clients/admins
+    match /shipments/{resi} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Orders can be created by customers and managed
+    match /orders/{orderId} {
+      allow read, write: if true;
+    }
+
+    // Partnership registrations
+    match /partners/{partnerId} {
+      allow read, write: if true;
+    }
+  }
+}

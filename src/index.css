@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  header, footer, nav, #topbar, #beranda, #layanan, #carakerja, #coverage, #kalkulator, #tracking, #pesan, #testimoni, #faq, #lokasi, #btn-floating-wa {
+    display: none !important;
+  }
+}
