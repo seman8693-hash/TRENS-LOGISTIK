@@ -5,6 +5,7 @@ export const WA_NUMBER_DISPLAY = '0856-9431-0979';
 export const OFFICE_PHONE = '081389755106';
 export const OFFICE_PHONE_DISPLAY = '0813-8975-5106';
 export const MIN_BIAYA = 50000;
+export const SAMPLE_RESIS = new Set(['LN25083001', 'LN25083002', 'LN25083003']);
 
 export const CITIES: Record<string, CityData> = {
   jakarta: { n: 'Jakarta', z: 'Jawa' },
@@ -238,21 +239,20 @@ export const zonePair = (z1: string, z2: string): string => {
 
 export const getStoredTracks = (): Record<string, TrackingItem> => {
   try {
-    const raw = localStorage.getItem('ln_tracks');
+    const raw = localStorage.getItem('ln_tracks_v2');
     if (!raw) {
-      localStorage.setItem('ln_tracks', JSON.stringify(INITIAL_SAMPLE_TRACKS));
-      return INITIAL_SAMPLE_TRACKS;
+      return {};
     }
     const parsed = JSON.parse(raw);
-    return { ...INITIAL_SAMPLE_TRACKS, ...parsed };
+    return Object.fromEntries(Object.entries(parsed).filter(([resi]) => !SAMPLE_RESIS.has(resi)));
   } catch {
-    return INITIAL_SAMPLE_TRACKS;
+    return {};
   }
 };
 
 export const saveStoredTracks = (tracks: Record<string, TrackingItem>) => {
   try {
-    localStorage.setItem('ln_tracks', JSON.stringify(tracks));
+    localStorage.setItem('ln_tracks_v2', JSON.stringify(tracks));
   } catch (err) {
     console.error('Failed to save tracks to localStorage', err);
   }
@@ -260,20 +260,16 @@ export const saveStoredTracks = (tracks: Record<string, TrackingItem>) => {
 
 export const getStoredRequests = (): OrderRequest[] => {
   try {
-    const raw = localStorage.getItem('trens_requests');
-    if (!raw) {
-      localStorage.setItem('trens_requests', JSON.stringify(INITIAL_REQUESTS));
-      return INITIAL_REQUESTS;
-    }
-    return JSON.parse(raw);
+    const raw = localStorage.getItem('trens_requests_v2');
+    return raw ? JSON.parse(raw) : [];
   } catch {
-    return INITIAL_REQUESTS;
+    return [];
   }
 };
 
 export const saveStoredRequests = (requests: OrderRequest[]) => {
   try {
-    localStorage.setItem('trens_requests', JSON.stringify(requests));
+    localStorage.setItem('trens_requests_v2', JSON.stringify(requests));
   } catch (err) {
     console.error('Failed to save requests to localStorage', err);
   }
@@ -317,20 +313,16 @@ export const INITIAL_PARTNERS: PartnerLead[] = [
 
 export const getStoredPartners = (): PartnerLead[] => {
   try {
-    const raw = localStorage.getItem('trens_partners');
-    if (!raw) {
-      localStorage.setItem('trens_partners', JSON.stringify(INITIAL_PARTNERS));
-      return INITIAL_PARTNERS;
-    }
-    return JSON.parse(raw);
+    const raw = localStorage.getItem('trens_partners_v2');
+    return raw ? JSON.parse(raw) : [];
   } catch {
-    return INITIAL_PARTNERS;
+    return [];
   }
 };
 
 export const saveStoredPartners = (partners: PartnerLead[]) => {
   try {
-    localStorage.setItem('trens_partners', JSON.stringify(partners));
+    localStorage.setItem('trens_partners_v2', JSON.stringify(partners));
   } catch (err) {
     console.error('Failed to save partners to localStorage', err);
   }

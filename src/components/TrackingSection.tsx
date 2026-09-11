@@ -22,7 +22,7 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { TrackingItem } from '../types';
-import { getStoredTracks, saveStoredTracks, rupiah } from '../data/logisticData';
+import { getStoredTracks, saveStoredTracks } from '../data/logisticData';
 import { getShipmentFromDb, isFirebaseReady } from '../firebase';
 
 interface TrackingSectionProps {
@@ -291,10 +291,9 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({ onPrintLabel }
                 </p>
               </div>
               <div>
-                <p className="text-slate-400 font-medium">Berat &amp; Ongkir</p>
+                <p className="text-slate-400 font-medium">Berat</p>
                 <p className="font-bold text-slate-800 text-sm mt-0.5">
-                  {activeTrack.data.weight ? `${activeTrack.data.weight} kg` : '-'} 
-                  {activeTrack.data.cost ? ` • ${rupiah(activeTrack.data.cost)}` : ''}
+                  {activeTrack.data.weight ? `${activeTrack.data.weight} kg` : '-'}
                 </p>
               </div>
             </div>

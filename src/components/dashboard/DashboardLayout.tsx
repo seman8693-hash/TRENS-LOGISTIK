@@ -16,7 +16,9 @@ import {
   LogOut,
   Bell,
   Search,
-  ExternalLink
+  ExternalLink,
+  BriefcaseBusiness,
+  ReceiptText
 } from 'lucide-react';
 import { 
   DashboardTab, 
@@ -39,7 +41,8 @@ import {
   getStoredWebhook,
   saveStoredWebhook,
   DEFAULT_RATES,
-  INITIAL_SAMPLE_TRACKS
+  INITIAL_SAMPLE_TRACKS,
+  SAMPLE_RESIS
 } from '../../data/logisticData';
 import {
   subscribeShipments,
@@ -56,6 +59,8 @@ import { DashboardOrders } from './DashboardOrders';
 import { DashboardPartners } from './DashboardPartners';
 import { DashboardRates } from './DashboardRates';
 import { DashboardIntegration } from './DashboardIntegration';
+import { DashboardAdmin } from './DashboardAdmin';
+import { DashboardInvoices } from './DashboardInvoices';
 import { CreateShipmentModal } from './CreateShipmentModal';
 import { UpdateCheckpointModal } from './UpdateCheckpointModal';
 
@@ -73,16 +78,22 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   // Master State with LocalStorage & Firestore Sync
   const [tracks, setTracks] = useState<Record<string, TrackingItem>>(() => getStoredTracks());
   const [orders, setOrders] = useState<OrderRequest[]>(() => getStoredRequests());
-  const [partners, setPartners] = useState<PartnerLead[]>(() => getStoredPartners());
+  const [partners, setPartners] = useState<PartnerLead[]>([]);
   const [rates, setRates] = useState<Record<ShipmentMode, Record<string, number>>>(() => getStoredRates());
   const [webhookConfig, setWebhookConfig] = useState<WebhookConfig>(() => getStoredWebhook());
 
   // Real-time synchronization with Cloud Firestore
   useEffect(() => {
     const unsubShipments = subscribeShipments((liveShipments) => {
-      if (Object.keys(liveShipments).length > 0) {
+      const localTracks = getStoredTracks();
+      const filteredShipments = Object.fromEntries(
+        Object.entries(liveShipments).filter(([resi]) => !SAMPLE_RESIS.has(resi))
+      );
+      if (Object.keys(localTracks).length === 0) {
+        setTracks({});
+      } else if (Object.keys(filteredShipments).length > 0) {
         setTracks((prev) => {
-          const merged = { ...prev, ...liveShipments };
+          const merged = { ...prev, ...filteredShipments };
           saveStoredTracks(merged);
           return merged;
         });
@@ -90,14 +101,20 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     });
 
     const unsubOrders = subscribeOrders((liveOrders) => {
-      if (liveOrders.length > 0) {
+      const localOrders = getStoredRequests();
+      if (localOrders.length === 0) {
+        setOrders([]);
+      } else if (liveOrders.length > 0) {
         setOrders(liveOrders);
         saveStoredRequests(liveOrders);
       }
     });
 
     const unsubPartners = subscribePartners((livePartners) => {
-      if (livePartners.length > 0) {
+      const localPartners = getStoredPartners();
+      if (localPartners.length === 0) {
+        setPartners([]);
+      } else if (livePartners.length > 0) {
         setPartners(livePartners);
         saveStoredPartners(livePartners);
       }
@@ -317,6 +334,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-1 sm:space-x-2 py-1.5">
             {[
               { id: 'overview', label: 'Ringkasan', icon: LayoutDashboard },
+              { id: 'admin', label: 'Admin', icon: BriefcaseBusiness },
+              { id: 'invoices', label: 'Invoice', icon: ReceiptText },
               { id: 'shipments', label: `Resi & Kargo (${Object.keys(tracks).length})`, icon: Package },
               { 
                 id: 'orders', 
@@ -373,6 +392,19 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             onSelectUpdateResi={(resi) => setUpdateResiTarget(resi)}
             onPrintLabel={onPrintLabel}
           />
+        )}
+
+        {activeTab === 'admin' && (
+          <DashboardAdmin
+            tracks={tracks}
+            orders={orders}
+            partners={partners}
+            onNavigateTab={setActiveTab}
+          />
+        )}
+
+        {activeTab === 'invoices' && (
+          <DashboardInvoices tracks={tracks} orders={orders} />
         )}
 
         {activeTab === 'shipments' && (

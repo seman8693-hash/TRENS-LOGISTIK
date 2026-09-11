@@ -6,7 +6,6 @@ import {
   Plane, 
   Clock, 
   CheckCircle2, 
-  TrendingUp, 
   ArrowUpRight, 
   Users, 
   FileText, 
@@ -16,7 +15,6 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { TrackingItem, OrderRequest, PartnerLead, DashboardTab } from '../../types';
-import { rupiah } from '../../data/logisticData';
 
 interface DashboardOverviewProps {
   tracks: Record<string, TrackingItem>;
@@ -50,10 +48,6 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   const daratCount = trackEntries.filter(([_, t]) => t.moda === 'Darat').length;
   const lautCount = trackEntries.filter(([_, t]) => t.moda === 'Laut').length;
   const udaraCount = trackEntries.filter(([_, t]) => t.moda === 'Udara').length;
-
-  // Total revenue & weight
-  const totalRevenue = trackEntries.reduce((acc, [_, t]) => acc + (t.cost || 0), 0);
-  const totalWeight = trackEntries.reduce((acc, [_, t]) => acc + (t.weight || 0), 0);
 
   // New Orders
   const pendingOrders = orders.filter(o => o.status === 'Baru' || o.status === 'Dikonfirmasi').length;
@@ -107,10 +101,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         {/* Card 1: Total Pengiriman Aktif */}
         <div 
           onClick={() => onNavigateTab('shipments')}
-          className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition-all cursor-pointer group"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Resi Aktif</span>
+            <span className="text-2xl sm:text-3xl font-black text-slate-900">-</span>
             <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center group-hover:scale-110 transition-transform">
               <Package className="w-4 h-4" />
             </div>
@@ -174,24 +165,6 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           </p>
         </div>
 
-        {/* Card 4: Total Nilai Kargo */}
-        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Nilai Transaksi</span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
-              <TrendingUp className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-xl sm:text-2xl font-black text-slate-900 font-mono">
-              {rupiah(totalRevenue)}
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-500 mt-1">
-            Total tonase: ~{totalWeight.toFixed(1)} Kg
-          </p>
-        </div>
-
       </div>
 
       {/* Visual Analytics & Breakdown */}
@@ -204,7 +177,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               <h3 className="text-sm font-bold text-slate-900">Pipeline Status Pengiriman</h3>
               <p className="text-xs text-slate-500">Distribusi real-time proses paket dan kargo</p>
             </div>
-            <span className="text-xs font-bold text-blue-700">{totalShipments} Resi Total</span>
+            <span className="text-xs font-bold text-blue-700">Status Resi</span>
           </div>
 
           {/* Bar Chart Representation */}
@@ -354,7 +327,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               onClick={() => onNavigateTab('shipments')}
               className="text-xs text-blue-700 hover:text-blue-900 font-bold flex items-center gap-1"
             >
-              <span>Lihat Semua Resi ({totalShipments})</span>
+              <span>Lihat Semua Resi</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
           </div>

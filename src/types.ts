@@ -87,7 +87,20 @@ export interface PartnerLead {
   status: 'Menunggu' | 'Dihubungi' | 'Disetujui' | 'Ditolak';
 }
 
-export type DashboardTab = 'overview' | 'shipments' | 'orders' | 'partners' | 'rates' | 'integration';
+export interface Invoice {
+  id: string;
+  customerName: string;
+  customerPhone: string;
+  resi: string;
+  amount: number;
+  tax: number;
+  total: number;
+  issueDate: string;
+  dueDate: string;
+  status: 'Belum Dibayar' | 'Dibayar' | 'Jatuh Tempo';
+}
+
+export type DashboardTab = 'overview' | 'shipments' | 'orders' | 'partners' | 'rates' | 'integration' | 'admin' | 'invoices';
 
 export interface WebhookConfig {
   url: string;

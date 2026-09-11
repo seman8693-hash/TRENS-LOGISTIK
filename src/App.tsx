@@ -14,32 +14,31 @@ import { LokasiFooter } from './components/LokasiFooter';
 import { PrintShippingLabelModal } from './components/PrintShippingLabelModal';
 import { DashboardLayout } from './components/dashboard/DashboardLayout';
 import { TrackingItem, AppViewMode } from './types';
-import { seedInitialFirestoreData } from './firebase';
 
 export default function App() {
   const [viewMode, setViewMode] = useState<AppViewMode>(() => {
-    if (typeof window !== 'undefined' && window.location.hash === '#dashboard') {
+    if (typeof window !== 'undefined' && (window.location.pathname === '/admin' || window.location.hash === '#dashboard')) {
       return 'dashboard';
     }
     return 'website';
   });
 
   useEffect(() => {
-    // Seed initial collections into Firebase Firestore if empty
-    seedInitialFirestoreData().catch((err) => {
-      console.warn('Firebase seeding notice:', err);
-    });
-
-    const handleHashChange = () => {
-      if (window.location.hash === '#dashboard') {
+    const handleLocationChange = () => {
+      if (window.location.pathname === '/admin' || window.location.hash === '#dashboard') {
         setViewMode('dashboard');
       } else {
         setViewMode('website');
       }
     };
 
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    const handlePopState = () => handleLocationChange();
+    window.addEventListener('hashchange', handleLocationChange);
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('hashchange', handleLocationChange);
+      window.removeEventListener('popstate', handlePopState);
+    };
   }, []);
 
   const [showKemitraanModal, setShowKemitraanModal] = useState<boolean>(false);
@@ -50,7 +49,7 @@ export default function App() {
   };
 
   const handleOpenDashboard = () => {
-    window.location.hash = '#dashboard';
+    window.history.pushState({}, '', '/admin');
     setViewMode('dashboard');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -61,7 +60,7 @@ export default function App() {
       <div className="relative">
         <DashboardLayout
           onBackToWebsite={() => {
-            window.location.hash = '';
+            window.history.pushState({}, '', '/');
             setViewMode('website');
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
