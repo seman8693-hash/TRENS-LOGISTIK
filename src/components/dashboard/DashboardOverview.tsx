@@ -101,16 +101,16 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         {/* Card 1: Total Pengiriman Aktif */}
         <div 
           onClick={() => onNavigateTab('shipments')}
-            <span className="text-2xl sm:text-3xl font-black text-slate-900">-</span>
+          className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md transition-all cursor-pointer group"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Resi Aktif</span>
             <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center group-hover:scale-110 transition-transform">
               <Package className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black text-slate-900">{totalShipments}</span>
-            <span className="text-xs text-emerald-600 font-semibold flex items-center">
-              <TrendingUp className="w-3 h-3 mr-0.5" /> +{totalShipments} kargo
-            </span>
+            <span className="text-2xl sm:text-3xl font-black text-slate-900">-</span>
           </div>
           <p className="text-[11px] text-slate-500 mt-1">
             Total muatan terdaftar di database
