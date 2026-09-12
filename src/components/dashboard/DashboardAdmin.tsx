@@ -45,8 +45,8 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   const totalShipments = Object.keys(tracks).length;
   const pendingPickup = orders.filter((o) => o.status === 'Baru' || o.status === 'Dikonfirmasi').length;
   const approvedPartners = partners.filter((p) => p.status === 'Disetujui').length;
-  const activeFleet = Object.values(tracks).filter((track) => track.status === 'Dalam Perjalanan' || track.status === 'Tiba di Kota Tujuan').length;
-  const delivered = Object.values(tracks).filter((track) => track.status === 'Terkirim').length;
+  const activeFleet = Object.values(tracks).filter((track: TrackingItem) => track.status === 'Dalam Perjalanan' || track.status === 'Tiba di Kota Tujuan').length;
+  const delivered = Object.values(tracks).filter((track: TrackingItem) => track.status === 'Terkirim').length;
   const onTimeRate = totalShipments > 0 ? Math.round((delivered / totalShipments) * 100) : 0;
 
   const handleAddTask = () => {

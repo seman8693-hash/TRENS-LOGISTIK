@@ -19,13 +19,26 @@ import {
   Camera,
   ZoomIn,
   X,
-  Image as ImageIcon
+  Image as ImageIcon,
+  FileSpreadsheet,
+  Upload,
+  CheckCircle2,
+  Tag,
+  ReceiptText,
+  FileText
 } from 'lucide-react';
-import { TrackingItem, ShipmentStatus, ShipmentMode } from '../../types';
-import { rupiah } from '../../data/logisticData';
+import { TrackingItem, ShipmentStatus, ShipmentMode, Invoice } from '../../types';
+import { rupiah, DEFAULT_RATES } from '../../data/logisticData';
+import { UploadPemuatanResiExcelModal } from './UploadPemuatanResiExcelModal';
+import { InvoiceDocumentModal } from './InvoiceDocumentModal';
+import { createInvoiceFromTracking, upsertInvoice } from '../../utils/invoiceStore';
 
 interface DashboardShipmentsProps {
   tracks: Record<string, TrackingItem>;
+  currentRates?: Record<ShipmentMode, Record<string, number>>;
+  onNavigateToRates?: () => void;
+  onApplyRates?: (newRates: Record<ShipmentMode, Record<string, number>>) => void;
+  onBatchSaveShipments?: (newShipments: Record<string, TrackingItem>) => void;
   onOpenCreateShipment: () => void;
   onSelectUpdateResi: (resi: string) => void;
   onPrintLabel: (resi: string, item: TrackingItem) => void;
@@ -34,6 +47,10 @@ interface DashboardShipmentsProps {
 
 export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
   tracks,
+  currentRates = DEFAULT_RATES,
+  onNavigateToRates,
+  onApplyRates,
+  onBatchSaveShipments,
   onOpenCreateShipment,
   onSelectUpdateResi,
   onPrintLabel,
@@ -44,8 +61,38 @@ export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
   const [modaFilter, setModaFilter] = useState<string>('Semua');
   const [expandedResi, setExpandedResi] = useState<string | null>(null);
   const [selectedPreviewPhoto, setSelectedPreviewPhoto] = useState<{ url: string; title: string } | null>(null);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [excelSuccessMsg, setExcelSuccessMsg] = useState<string | null>(null);
+  const [selectedInvoiceForModal, setSelectedInvoiceForModal] = useState<Invoice | null>(null);
+
+  const handleOpenShipmentInvoice = (resi: string, item: TrackingItem) => {
+    const inv = createInvoiceFromTracking(resi, item);
+    setSelectedInvoiceForModal(inv);
+  };
+
+  const handleSaveShipmentInvoice = (updated: Invoice) => {
+    upsertInvoice(updated);
+    setSelectedInvoiceForModal(updated);
+  };
 
   const entries = Object.entries(tracks) as [string, TrackingItem][];
+
+  const handleBatchSave = (newShipments: Record<string, TrackingItem>) => {
+    if (onBatchSaveShipments) {
+      onBatchSaveShipments(newShipments);
+      const count = Object.keys(newShipments).length;
+      setExcelSuccessMsg(`Berhasil memuat ${count} resi & harga dari file Excel ke sistem!`);
+      setTimeout(() => setExcelSuccessMsg(null), 5000);
+    }
+  };
+
+  const handleApplyRates = (newRates: Record<ShipmentMode, Record<string, number>>) => {
+    if (onApplyRates) {
+      onApplyRates(newRates);
+      setExcelSuccessMsg('Tarif & harga ongkir berhasil diperbarui dari file Excel!');
+      setTimeout(() => setExcelSuccessMsg(null), 5000);
+    }
+  };
 
   // Filter logic
   const filtered = entries.filter(([resi, item]) => {
@@ -89,6 +136,26 @@ export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
 
   return (
     <div className="space-y-5">
+
+      {/* Top Navigation Pills (Matching UI Screenshot) */}
+      <div className="flex flex-wrap items-center gap-2.5">
+        <button
+          id="btn-nav-kelola-resi-active"
+          className="bg-[#0B1B4D] text-white border border-[#0B1B4D] px-4 py-2.5 rounded-2xl font-extrabold text-xs flex items-center gap-2 shadow-md cursor-default"
+        >
+          <Truck className="w-4 h-4 text-amber-400" />
+          <span>KELOLA RESI PENGIRIMAN ({entries.length})</span>
+        </button>
+
+        <button
+          id="btn-nav-pricelist-switch"
+          onClick={onNavigateToRates}
+          className="bg-white hover:bg-slate-50 text-slate-700 hover:text-blue-900 border border-slate-200 px-4 py-2.5 rounded-2xl font-extrabold text-xs flex items-center gap-2 transition-all shadow-xs cursor-pointer"
+        >
+          <Tag className="w-4 h-4 text-slate-400" />
+          <span>PRICELIST TARIF ONGKIR</span>
+        </button>
+      </div>
       
       {/* Top Controls Bar */}
       <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
@@ -96,25 +163,39 @@ export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
           <div>
             <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
               <Package className="w-5 h-5 text-blue-700" />
-              <span>Manajemen Resi &amp; Pengiriman Kargo</span>
+              <span>Pemuatan Resi &amp; Pengiriman Kargo</span>
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Kelola status, perjalanan armada, serta cetak label thermal AWB
+              Pemuatan data resi &amp; harga dari Excel, kelola status kargo, dan cetak label thermal AWB
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Upload Excel Button */}
+            <button
+              id="btn-open-upload-excel-shipments"
+              onClick={() => setShowUploadModal(true)}
+              className="bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 font-bold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-all shadow-xs hover:scale-102 cursor-pointer"
+              title="Upload data resi muatan dan harga ongkir dari file Excel"
+            >
+              <Upload className="w-3.5 h-3.5 text-emerald-700 stroke-[2.5]" />
+              <span>Upload Excel</span>
+            </button>
+
+            {/* Ekspor CSV */}
             <button
               onClick={handleExportCSV}
-              className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-colors"
+              className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
               title="Unduh Data Pengiriman format CSV"
             >
               <Download className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Ekspor CSV</span>
             </button>
+
+            {/* Input Resi Baru */}
             <button
               onClick={onOpenCreateShipment}
-              className="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-sm transition-all hover:scale-102"
+              className="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow-sm transition-all hover:scale-102 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>+ Input Resi Baru</span>
@@ -168,6 +249,22 @@ export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
 
         </div>
       </div>
+
+      {/* Excel Upload Notification Toast */}
+      {excelSuccessMsg && (
+        <div className="bg-emerald-50 border border-emerald-300 p-4 rounded-2xl flex items-center justify-between gap-3 text-xs text-emerald-900 animate-in fade-in slide-in-from-top-2 shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+            <span className="font-semibold">{excelSuccessMsg}</span>
+          </div>
+          <button
+            onClick={() => setExcelSuccessMsg(null)}
+            className="text-emerald-700 hover:text-emerald-950 font-bold px-2 py-1 rounded cursor-pointer"
+          >
+            Tutup
+          </button>
+        </div>
+      )}
 
       {/* Shipments Table Card */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
@@ -250,6 +347,11 @@ export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
                           <p className="font-bold text-slate-800 line-clamp-1">{t.nama}</p>
                           <p className="text-[11px] text-slate-500">
                             Pengirim: <span className="font-medium text-slate-700">{t.sender || '-'}</span>
+                            {t.senderAddress && (
+                              <span className="text-[10px] text-slate-400 block truncate max-w-xs" title={t.senderAddress}>
+                                {t.senderAddress}
+                              </span>
+                            )}
                           </p>
                           <p className="text-[11px] text-slate-500">
                             Penerima: <span className="font-medium text-slate-700">{t.recipient || '-'}</span>
@@ -263,7 +365,7 @@ export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
                             <span>{t.rute}</span>
                           </div>
                           {t.recipientAddress && (
-                            <p className="text-[10px] text-slate-400 max-w-xs truncate mt-0.5">
+                            <p className="text-[10px] text-slate-400 max-w-xs truncate mt-0.5" title={t.recipientAddress}>
                               {t.recipientAddress}
                             </p>
                           )}
@@ -287,6 +389,11 @@ export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
                             <span className="font-bold text-slate-700 text-xs">
                               {t.weight || 0} Kg
                             </span>
+                            {t.colly && (
+                              <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                                {t.colly} Colly
+                              </span>
+                            )}
                           </div>
                         </td>
 
@@ -314,6 +421,14 @@ export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
                         {/* Actions */}
                         <td className="py-3.5 px-4 text-center whitespace-nowrap">
                           <div className="flex items-center justify-center gap-1">
+                            <button
+                              onClick={() => handleOpenShipmentInvoice(resi, t)}
+                              className="px-2 py-1 bg-[#0B1B4D] hover:bg-blue-950 text-white font-bold rounded-lg transition-colors text-[11px] flex items-center gap-1 shadow-2xs"
+                              title="Buka Faktur Invoice, Resi Penjualan & Surat Jalan (DO)"
+                            >
+                              <FileText className="w-3 h-3 text-amber-400" />
+                              <span>Faktur</span>
+                            </button>
                             <button
                               onClick={() => onSelectUpdateResi(resi)}
                               className="px-2.5 py-1 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-lg transition-colors text-[11px] flex items-center gap-1"
@@ -512,6 +627,25 @@ export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Upload Pemuatan Resi & Harga Excel Modal */}
+      <UploadPemuatanResiExcelModal
+        isOpen={showUploadModal}
+        onClose={() => setShowUploadModal(false)}
+        currentRates={currentRates}
+        onApplyRates={handleApplyRates}
+        onBatchSaveShipments={handleBatchSave}
+      />
+
+      {/* Faktur Invoice, Resi Penjualan & Surat Jalan DO Modal */}
+      {selectedInvoiceForModal && (
+        <InvoiceDocumentModal
+          isOpen={true}
+          invoice={selectedInvoiceForModal}
+          onClose={() => setSelectedInvoiceForModal(null)}
+          onSaveInvoice={handleSaveShipmentInvoice}
+        />
       )}
 
     </div>

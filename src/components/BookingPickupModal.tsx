@@ -11,7 +11,8 @@ import {
   AlertCircle,
   ArrowRight,
   Send,
-  Sparkles
+  Sparkles,
+  Search
 } from 'lucide-react';
 import { CalculationResult, OrderRequest } from '../types';
 import { saveStoredRequests, getStoredRequests, rupiah, WA_NUMBER } from '../data/logisticData';
@@ -167,19 +168,39 @@ export const BookingPickupModal: React.FC<BookingPickupModalProps> = ({
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const id = successOrder.id;
+                  handleReset();
+                  setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('trens_track_requested', { detail: { resi: id } }));
+                    const trackEl = document.getElementById('tracking');
+                    if (trackEl) {
+                      trackEl.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }, 100);
+                }}
+                className="bg-[#0B1B4D] hover:bg-blue-900 text-white font-bold px-5 py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+              >
+                <Search className="w-3.5 h-3.5 text-amber-400" />
+                <span>Lacak Resi / ID Ini Sekarang</span>
+              </button>
+
               <a
                 href={`https://wa.me/${WA_NUMBER}?text=Halo%20TRENS-LOGISTIC%2C%20saya%20sudah%20mengirim%20booking%20pickup%20online%20dengan%20ID%20${successOrder.id}.%20Mohon%20konfirmasi%20jadwal.`}
                 target="_blank"
                 rel="noreferrer"
-                className="bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold px-6 py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm"
+                className="bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold px-5 py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm"
               >
                 <span>Konfirmasi via WhatsApp</span>
               </a>
+
               <button
                 onClick={handleReset}
-                className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-6 py-3 rounded-xl text-xs"
+                className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-3 rounded-xl text-xs"
               >
-                Selesai &amp; Tutup
+                Tutup
               </button>
             </div>
           </div>

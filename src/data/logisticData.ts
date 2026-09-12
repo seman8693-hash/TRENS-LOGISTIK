@@ -5,7 +5,10 @@ export const WA_NUMBER_DISPLAY = '0856-9431-0979';
 export const OFFICE_PHONE = '081389755106';
 export const OFFICE_PHONE_DISPLAY = '0813-8975-5106';
 export const MIN_BIAYA = 50000;
-export const SAMPLE_RESIS = new Set(['LN25083001', 'LN25083002', 'LN25083003']);
+export const SAMPLE_RESIS = new Set(['LN25083001', 'LN25083002', 'LN25083003', 'LN25083004']);
+export const DUMMY_RESI_LIST = ['LN25083001', 'LN25083002', 'LN25083003', 'LN25083004'];
+export const DUMMY_ORDER_LIST = ['LN26090101', 'LN26090102'];
+export const DUMMY_PARTNER_LIST = ['PTR260901', 'PTR260902', 'PTR260903'];
 
 export const CITIES: Record<string, CityData> = {
   jakarta: { n: 'Jakarta', z: 'Jawa' },
@@ -32,31 +35,31 @@ export const CITIES: Record<string, CityData> = {
 
 export const DEFAULT_RATES: Record<ShipmentMode, Record<string, number>> = {
   Darat: {
-    same: 2500,
-    jawaSumatera: 4500,
-    jawaKalimantan: 5000,
-    jawaSulawesi: 6000,
-    jawaBali: 3500,
-    jawaPapua: 9000,
-    cross: 6000
+    same: 0,
+    jawaSumatera: 0,
+    jawaKalimantan: 0,
+    jawaSulawesi: 0,
+    jawaBali: 0,
+    jawaPapua: 0,
+    cross: 0
   },
   Laut: {
-    same: 1500,
-    jawaSumatera: 2500,
-    jawaKalimantan: 2500,
-    jawaSulawesi: 3500,
-    jawaBali: 2000,
-    jawaPapua: 5500,
-    cross: 3500
+    same: 0,
+    jawaSumatera: 0,
+    jawaKalimantan: 0,
+    jawaSulawesi: 0,
+    jawaBali: 0,
+    jawaPapua: 0,
+    cross: 0
   },
   Udara: {
-    same: 12000,
-    jawaSumatera: 15000,
-    jawaKalimantan: 17000,
-    jawaSulawesi: 18000,
-    jawaBali: 14000,
-    jawaPapua: 25000,
-    cross: 18000
+    same: 0,
+    jawaSumatera: 0,
+    jawaKalimantan: 0,
+    jawaSulawesi: 0,
+    jawaBali: 0,
+    jawaPapua: 0,
+    cross: 0
   }
 };
 
@@ -244,7 +247,7 @@ export const getStoredTracks = (): Record<string, TrackingItem> => {
       return {};
     }
     const parsed = JSON.parse(raw);
-    return Object.fromEntries(Object.entries(parsed).filter(([resi]) => !SAMPLE_RESIS.has(resi)));
+    return Object.fromEntries(Object.entries(parsed).filter(([resi]) => !SAMPLE_RESIS.has(resi))) as Record<string, TrackingItem>;
   } catch {
     return {};
   }
@@ -253,6 +256,10 @@ export const getStoredTracks = (): Record<string, TrackingItem> => {
 export const saveStoredTracks = (tracks: Record<string, TrackingItem>) => {
   try {
     localStorage.setItem('ln_tracks_v2', JSON.stringify(tracks));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('trens_tracks_updated', { detail: tracks }));
+      window.dispatchEvent(new Event('storage'));
+    }
   } catch (err) {
     console.error('Failed to save tracks to localStorage', err);
   }
@@ -270,6 +277,10 @@ export const getStoredRequests = (): OrderRequest[] => {
 export const saveStoredRequests = (requests: OrderRequest[]) => {
   try {
     localStorage.setItem('trens_requests_v2', JSON.stringify(requests));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('trens_requests_updated', { detail: requests }));
+      window.dispatchEvent(new Event('storage'));
+    }
   } catch (err) {
     console.error('Failed to save requests to localStorage', err);
   }
@@ -330,9 +341,9 @@ export const saveStoredPartners = (partners: PartnerLead[]) => {
 
 export const getStoredRates = (): Record<ShipmentMode, Record<string, number>> => {
   try {
-    const raw = localStorage.getItem('trens_rates');
+    const raw = localStorage.getItem('trens_rates_v2');
     if (!raw) {
-      localStorage.setItem('trens_rates', JSON.stringify(DEFAULT_RATES));
+      localStorage.setItem('trens_rates_v2', JSON.stringify(DEFAULT_RATES));
       return DEFAULT_RATES;
     }
     return JSON.parse(raw);
@@ -343,7 +354,11 @@ export const getStoredRates = (): Record<ShipmentMode, Record<string, number>> =
 
 export const saveStoredRates = (rates: Record<ShipmentMode, Record<string, number>>) => {
   try {
-    localStorage.setItem('trens_rates', JSON.stringify(rates));
+    localStorage.setItem('trens_rates_v2', JSON.stringify(rates));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('trens_rates_updated', { detail: rates }));
+      window.dispatchEvent(new Event('storage'));
+    }
   } catch (err) {
     console.error('Failed to save rates to localStorage', err);
   }

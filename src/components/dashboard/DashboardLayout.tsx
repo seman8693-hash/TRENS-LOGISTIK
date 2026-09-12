@@ -50,7 +50,9 @@ import {
   subscribePartners,
   saveShipmentToDb,
   saveOrderToDb,
-  savePartnerToDb
+  savePartnerToDb,
+  deleteShipmentFromDb,
+  deleteOrderFromDb
 } from '../../firebase';
 
 import { DashboardOverview } from './DashboardOverview';
@@ -164,6 +166,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     saveShipmentToDb(resi, item).catch(err => console.warn('Firestore save shipment error:', err));
   };
 
+  const handleBatchSaveShipments = (newShipments: Record<string, TrackingItem>) => {
+    const updated = { ...newShipments, ...tracks };
+    updateTracksState(updated);
+    Object.entries(newShipments).forEach(([resi, item]) => {
+      saveShipmentToDb(resi, item).catch(err => console.warn('Firestore batch save error:', err));
+    });
+  };
+
   const handleUpdateShipment = (resi: string, updatedItem: TrackingItem) => {
     const updated = { ...tracks, [resi]: updatedItem };
     updateTracksState(updated);
@@ -174,6 +184,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     const copy = { ...tracks };
     delete copy[resi];
     updateTracksState(copy);
+    deleteShipmentFromDb(resi).catch(err => console.warn('Firestore delete shipment notice:', err));
   };
 
   const handleUpdateOrderStatus = (id: string, status: OrderRequest['status']) => {
@@ -189,6 +200,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const handleDeleteOrder = (id: string) => {
     const updated = orders.filter((o) => o.id !== id);
     updateOrdersState(updated);
+    deleteOrderFromDb(id).catch(err => console.warn('Firestore delete order notice:', err));
   };
 
   const handleConvertOrderToShipment = (order: OrderRequest) => {
@@ -310,11 +322,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
               <button
                 onClick={() => setIsCreateOpen(true)}
-                className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition-all hover:scale-102"
+                className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition-all hover:scale-102 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">Input Resi Baru</span>
-                <span className="sm:hidden">Resi</span>
+                <span className="hidden sm:inline">Pemuatan Resi Baru</span>
+                <span className="sm:hidden">Muat Resi</span>
               </button>
 
               <button
@@ -336,7 +348,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               { id: 'overview', label: 'Ringkasan', icon: LayoutDashboard },
               { id: 'admin', label: 'Admin', icon: BriefcaseBusiness },
               { id: 'invoices', label: 'Invoice', icon: ReceiptText },
-              { id: 'shipments', label: `Resi & Kargo (${Object.keys(tracks).length})`, icon: Package },
+              { id: 'shipments', label: `Pemuatan Resi (${Object.keys(tracks).length})`, icon: Package },
               { 
                 id: 'orders', 
                 label: 'Order Pickup', 
@@ -410,6 +422,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         {activeTab === 'shipments' && (
           <DashboardShipments
             tracks={tracks}
+            currentRates={rates}
+            onNavigateToRates={() => setActiveTab('rates')}
+            onApplyRates={updateRatesState}
+            onBatchSaveShipments={handleBatchSaveShipments}
             onOpenCreateShipment={() => setIsCreateOpen(true)}
             onSelectUpdateResi={(resi) => setUpdateResiTarget(resi)}
             onPrintLabel={onPrintLabel}
@@ -437,6 +453,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         {activeTab === 'rates' && (
           <DashboardRates
             rates={rates}
+            shipmentsCount={Object.keys(tracks).length}
+            onNavigateToShipments={() => setActiveTab('shipments')}
             onSaveRates={updateRatesState}
             onResetRates={() => updateRatesState(DEFAULT_RATES)}
           />

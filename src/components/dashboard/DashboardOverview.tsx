@@ -15,6 +15,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { TrackingItem, OrderRequest, PartnerLead, DashboardTab } from '../../types';
+import { rupiah } from '../../data/logisticData';
 
 interface DashboardOverviewProps {
   tracks: Record<string, TrackingItem>;

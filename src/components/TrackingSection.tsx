@@ -22,8 +22,8 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { TrackingItem } from '../types';
-import { getStoredTracks, saveStoredTracks } from '../data/logisticData';
-import { getShipmentFromDb, isFirebaseReady } from '../firebase';
+import { getStoredTracks, saveStoredTracks, getStoredRequests } from '../data/logisticData';
+import { getShipmentFromDb, getOrderFromDb, isFirebaseReady } from '../firebase';
 
 interface TrackingSectionProps {
   onPrintLabel?: (resi: string, track: TrackingItem) => void;
@@ -31,11 +31,39 @@ interface TrackingSectionProps {
 
 export const TrackingSection: React.FC<TrackingSectionProps> = ({ onPrintLabel }) => {
   const [resiInput, setResiInput] = useState('');
-  const [activeTrack, setActiveTrack] = useState<{ no: string; data: TrackingItem; fromFirestore?: boolean } | null>(null);
+  const [activeTrack, setActiveTrack] = useState<{ no: string; data: TrackingItem; fromFirestore?: boolean; isBookingOrder?: boolean } | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [lightboxPhoto, setLightboxPhoto] = useState<{ url: string; title: string } | null>(null);
+
+  useEffect(() => {
+    const handleTrackRequested = (e: CustomEvent<{ resi: string }>) => {
+      if (e.detail?.resi) {
+        setResiInput(e.detail.resi);
+        handleSearch(e.detail.resi);
+      }
+    };
+
+    const handleTracksUpdated = () => {
+      if (activeTrack?.no) {
+        const allTracks = getStoredTracks();
+        if (allTracks[activeTrack.no]) {
+          setActiveTrack(prev => prev ? { ...prev, data: allTracks[prev.no] } : null);
+        }
+      }
+    };
+
+    window.addEventListener('trens_track_requested' as any, handleTrackRequested);
+    window.addEventListener('trens_tracks_updated' as any, handleTracksUpdated);
+    window.addEventListener('storage', handleTracksUpdated);
+
+    return () => {
+      window.removeEventListener('trens_track_requested' as any, handleTrackRequested);
+      window.removeEventListener('trens_tracks_updated' as any, handleTracksUpdated);
+      window.removeEventListener('storage', handleTracksUpdated);
+    };
+  }, [activeTrack?.no]);
 
   const handleResetSearch = () => {
     setResiInput('');
@@ -46,7 +74,7 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({ onPrintLabel }
   const handleSearch = async (customResi?: string) => {
     const targetNo = (customResi || resiInput).trim().toUpperCase();
     if (!targetNo) {
-      setErrorMsg('Silakan masukkan nomor resi pengiriman Anda.');
+      setErrorMsg('Silakan masukkan nomor resi atau ID booking pengiriman Anda.');
       setActiveTrack(null);
       return;
     }
@@ -55,9 +83,10 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({ onPrintLabel }
     setErrorMsg(null);
 
     try {
-      // 1. First check Firestore Cloud Database
+      // 1. First check Firestore Cloud Database for shipment
       let found: TrackingItem | null = null;
       let fromFirestore = false;
+      let isBookingOrder = false;
 
       if (isFirebaseReady) {
         found = await getShipmentFromDb(targetNo);
@@ -76,22 +105,96 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({ onPrintLabel }
         found = allTracks[targetNo] || null;
       }
 
+      // 3. If not found in shipments, check Orders / Bookings (customer checked price & created booking)
       if (!found) {
-        setErrorMsg(`Nomor resi "${targetNo}" tidak ditemukan dalam database pengiriman.`);
+        let orderData: any = null;
+        if (isFirebaseReady) {
+          orderData = await getOrderFromDb(targetNo);
+        }
+        if (!orderData) {
+          const orders = getStoredRequests();
+          orderData = orders.find(o => o.id.toUpperCase() === targetNo || o.resi?.toUpperCase() === targetNo);
+        }
+
+        if (orderData) {
+          isBookingOrder = true;
+          fromFirestore = isFirebaseReady;
+          found = {
+            no: orderData.id,
+            nama: orderData.barang || 'Muatan Paket Kiriman',
+            rute: orderData.rute || 'Rute Pengiriman',
+            moda: orderData.moda || 'Darat',
+            status: orderData.status === 'Selesai' ? 'Terkirim' : orderData.status === 'Diproses' ? 'Dalam Perjalanan' : 'Diproses',
+            sender: orderData.nama,
+            senderPhone: orderData.hp,
+            weight: orderData.berat,
+            cost: orderData.estimasiBiaya,
+            date: orderData.tanggal,
+            notes: orderData.catatan,
+            photoUrl: orderData.photoUrl,
+            history: [
+              {
+                w: new Date(orderData.tanggal || Date.now()).toLocaleDateString('id-ID', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }),
+                k: `Permintaan Booking Berhasil Dibuat (Status: ${orderData.status || 'Baru'}). Terintegrasi dengan Dashboard Admin TRENS-LOG.`,
+                s: 'current'
+              }
+            ]
+          };
+        }
+      }
+
+      if (!found) {
+        setErrorMsg(`Nomor resi atau ID booking "${targetNo}" tidak ditemukan dalam sistem.`);
         setActiveTrack(null);
       } else {
         setErrorMsg(null);
-        setActiveTrack({ no: targetNo, data: found, fromFirestore });
+        setActiveTrack({ no: targetNo, data: found, fromFirestore, isBookingOrder });
       }
     } catch (err) {
       console.warn('Search error:', err);
-      // Fallback
+      // Fallback to local tracks or local orders
       const allTracks = getStoredTracks();
       const localFound = allTracks[targetNo];
       if (localFound) {
         setActiveTrack({ no: targetNo, data: localFound, fromFirestore: false });
       } else {
-        setErrorMsg(`Gagal memuat status resi. Pastikan koneksi internet aktif.`);
+        const localOrders = getStoredRequests();
+        const ord = localOrders.find(o => o.id.toUpperCase() === targetNo || o.resi?.toUpperCase() === targetNo);
+        if (ord) {
+          setActiveTrack({
+            no: targetNo,
+            data: {
+              no: ord.id,
+              nama: ord.barang,
+              rute: ord.rute,
+              moda: ord.moda,
+              status: 'Diproses',
+              sender: ord.nama,
+              senderPhone: ord.hp,
+              weight: ord.berat,
+              cost: ord.estimasiBiaya,
+              notes: ord.catatan,
+              photoUrl: ord.photoUrl,
+              history: [
+                {
+                  w: new Date().toLocaleDateString('id-ID'),
+                  k: `Permintaan Booking Tersimpan (${ord.status}). Menunggu penjemputan armada kurir.`,
+                  s: 'current'
+                }
+              ]
+            },
+            isBookingOrder: true,
+            fromFirestore: false
+          });
+        } else {
+          setErrorMsg(`Gagal memuat status resi. Pastikan nomor benar atau cek koneksi.`);
+        }
       }
     } finally {
       setLoading(false);
@@ -161,7 +264,7 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({ onPrintLabel }
                 type="text"
                 value={resiInput}
                 onChange={(e) => setResiInput(e.target.value.toUpperCase())}
-                placeholder="Masukkan No. Resi Anda..."
+                placeholder="Masukkan No. Resi atau ID Booking Pengiriman..."
                 className="w-full bg-white border border-slate-300 focus:border-blue-700 rounded-xl px-4 py-3.5 text-sm sm:text-base font-mono font-bold tracking-wider text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 uppercase"
               />
             </div>
@@ -249,6 +352,12 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({ onPrintLabel }
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
+                {activeTrack.isBookingOrder && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                    <span>🏷️ Booking / Permintaan Cek Tarif</span>
+                  </span>
+                )}
+
                 {activeTrack.fromFirestore && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />

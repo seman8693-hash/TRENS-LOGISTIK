@@ -18,8 +18,10 @@ import {
   X,
   Image as ImageIcon
 } from 'lucide-react';
-import { OrderRequest, TrackingItem, ShipmentStatus } from '../../types';
+import { OrderRequest, TrackingItem, ShipmentStatus, Invoice } from '../../types';
 import { rupiah } from '../../data/logisticData';
+import { InvoiceDocumentModal } from './InvoiceDocumentModal';
+import { createInvoiceFromOrder, upsertInvoice } from '../../utils/invoiceStore';
 
 interface DashboardOrdersProps {
   orders: OrderRequest[];
@@ -37,6 +39,17 @@ export const DashboardOrders: React.FC<DashboardOrdersProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('Semua');
   const [selectedPhoto, setSelectedPhoto] = useState<{ url: string; title: string } | null>(null);
+  const [selectedInvoiceForModal, setSelectedInvoiceForModal] = useState<Invoice | null>(null);
+
+  const handleOpenOrderInvoice = (order: OrderRequest) => {
+    const inv = createInvoiceFromOrder(order);
+    setSelectedInvoiceForModal(inv);
+  };
+
+  const handleSaveOrderInvoice = (updated: Invoice) => {
+    upsertInvoice(updated);
+    setSelectedInvoiceForModal(updated);
+  };
 
   const filtered = orders.filter((order) => {
     const q = searchQuery.toLowerCase();
@@ -253,6 +266,15 @@ export const DashboardOrders: React.FC<DashboardOrdersProps> = ({
 
                   <div className="flex items-center gap-1.5">
                     <button
+                      onClick={() => handleOpenOrderInvoice(order)}
+                      className="px-2.5 py-1.5 bg-[#0B1B4D] hover:bg-blue-950 text-white font-bold rounded-lg text-xs flex items-center gap-1 transition-colors shadow-2xs"
+                      title="Buka Faktur Invoice, Resi Penjualan & Surat Jalan (DO)"
+                    >
+                      <FileText className="w-3.5 h-3.5 text-amber-400" />
+                      <span className="hidden sm:inline">Faktur / DO</span>
+                    </button>
+
+                    <button
                       onClick={() => onConvertToShipment(order)}
                       className="px-3 py-1.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors"
                       title="Buat Resi Resmi dari order ini"
@@ -316,6 +338,16 @@ export const DashboardOrders: React.FC<DashboardOrdersProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Faktur Invoice, Resi Penjualan & Surat Jalan DO Modal */}
+      {selectedInvoiceForModal && (
+        <InvoiceDocumentModal
+          isOpen={true}
+          invoice={selectedInvoiceForModal}
+          onClose={() => setSelectedInvoiceForModal(null)}
+          onSaveInvoice={handleSaveOrderInvoice}
+        />
       )}
 
     </div>

@@ -109,7 +109,9 @@ export const PrintShippingLabelModal: React.FC<PrintShippingLabelModalProps> = (
                 <span className="block text-[10px] font-black uppercase text-slate-500">PENGIRIM (FROM)</span>
                 <p className="font-extrabold text-slate-900 text-sm">{track.sender || 'Customer TRENS'}</p>
                 <p className="text-slate-700">{track.senderPhone || '-'}</p>
-                <p className="text-[11px] text-slate-600 leading-snug">Asal: {track.rute.split('→')[0]?.trim() || 'Hub Asal'}</p>
+                <p className="text-[11px] text-slate-600 leading-snug">
+                  {track.senderAddress || `Asal: ${track.rute.split('→')[0]?.trim() || 'Hub Asal'}`}
+                </p>
               </div>
 
               {/* Penerima */}
@@ -122,10 +124,14 @@ export const PrintShippingLabelModal: React.FC<PrintShippingLabelModalProps> = (
             </div>
 
             {/* Cargo Specs */}
-            <div className="grid grid-cols-3 divide-x-2 divide-slate-900 border-b-2 border-slate-900 text-center text-xs py-2">
+            <div className="grid grid-cols-4 divide-x-2 divide-slate-900 border-b-2 border-slate-900 text-center text-xs py-2">
               <div>
                 <span className="block text-[10px] text-slate-500 font-bold">DESKRIPSI</span>
                 <span className="font-bold text-slate-900 truncate block px-1">{track.nama}</span>
+              </div>
+              <div>
+                <span className="block text-[10px] text-slate-500 font-bold">COLLY / KOLI</span>
+                <span className="font-black text-slate-900">{track.colly ? `${track.colly} Koli` : '1 Koli'}</span>
               </div>
               <div>
                 <span className="block text-[10px] text-slate-500 font-bold">BERAT</span>

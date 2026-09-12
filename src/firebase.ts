@@ -241,6 +241,29 @@ export async function saveOrderToDb(order: OrderRequest): Promise<boolean> {
 }
 
 /**
+ * Get single order by ID from Firestore
+ */
+export async function getOrderFromDb(orderId: string): Promise<OrderRequest | null> {
+  const cleanId = orderId.trim();
+  const docPath = `orders/${cleanId}`;
+  try {
+    const docRef = doc(db, 'orders', cleanId);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      return snap.data() as OrderRequest;
+    }
+    return null;
+  } catch (err: unknown) {
+    const code = (err as { code?: string })?.code;
+    if (code === 'permission-denied') {
+      handleFirestoreError(err, OperationType.GET, docPath);
+    }
+    console.warn(`Firestore getOrder notice (${code || 'offline'}):`, err);
+    return null;
+  }
+}
+
+/**
  * Listen to order requests in real-time (filters out any dummy orders)
  */
 export function subscribeOrders(callback: (orders: OrderRequest[]) => void) {

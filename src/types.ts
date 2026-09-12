@@ -17,16 +17,39 @@ export interface TrackingItem {
   history: TrackingCheckpoint[];
   sender?: string;
   senderPhone?: string;
+  senderCity?: string;
+  senderAddress?: string;
   recipient?: string;
   recipientPhone?: string;
   recipientAddress?: string;
+  recipientCity?: string;
   weight?: number;
+  berat?: number;
+  colly?: number;
   cost?: number;
   date?: string;
   notes?: string;
   photoUrl?: string;
   photoProof?: string;
   photoTimestamp?: string;
+  vendor?: string;
+  armada?: string;
+  driver?: string;
+  platNomor?: string;
+  asalTruk?: string;
+  etd?: string;
+  eta?: string;
+  panjang?: number;
+  lebar?: number;
+  tinggi?: number;
+  hargaBarang?: number;
+  biayaPacking?: number;
+  asuransi?: number;
+  ppn?: number;
+  pph?: number;
+  tarifKg?: number;
+  ongkirPokok?: number;
+  biayaTambahan?: number;
 }
 
 export interface OrderRequest {
@@ -69,6 +92,10 @@ export interface CalculationResult {
   asalNama: string;
   tujuanNama: string;
   moda: ShipmentMode;
+  layanan?: string;
+  vendor?: string;
+  minimalBerat?: number;
+  isPricelistMatch?: boolean;
 }
 
 export type AppViewMode = 'website' | 'dashboard';
@@ -98,6 +125,38 @@ export interface Invoice {
   issueDate: string;
   dueDate: string;
   status: 'Belum Dibayar' | 'Dibayar' | 'Jatuh Tempo';
+  paymentStatus?: 'LUNAS' | 'BELUM LUNAS' | 'DP / SEBAGIAN' | 'JATUH TEMPO' | 'BATAL' | 'CUSTOM';
+  customStamp?: string;
+  senderName?: string;
+  senderAddress?: string;
+  senderCity?: string;
+  recipientAddress?: string;
+  recipientCity?: string;
+  itemDescription?: string;
+  colly?: number;
+  weight?: number;
+  ongkirCargo?: number;
+  biayaPacking?: number;
+  asuransi?: number;
+  ppnPercent?: number;
+  pphPercent?: number;
+  deliveryOrderNo?: string;
+  driverName?: string;
+  vehiclePlate?: string;
+}
+
+export interface PricelistRouteItem {
+  id: string;
+  kotaAsal: string;
+  kotaTujuan: string;
+  moda: ShipmentMode;
+  layanan: string;
+  vendor: string;
+  tarifKg: number;
+  modalKg?: number;
+  marginPercent?: number;
+  minimalBerat: number;
+  leadTime: string;
 }
 
 export type DashboardTab = 'overview' | 'shipments' | 'orders' | 'partners' | 'rates' | 'integration' | 'admin' | 'invoices';
