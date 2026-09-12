@@ -52,7 +52,7 @@ export const DashboardIntegration: React.FC<DashboardIntegrationProps> = ({
 
   // Sandbox state
   const [sandboxEndpoint, setSandboxEndpoint] = useState<string>('GET /api/v1/tracking/:resi');
-  const [sandboxResi, setSandboxResi] = useState('LN25083001');
+  const [sandboxResi, setSandboxResi] = useState(Object.keys(tracks)[0] || 'LN26090001');
   const [sandboxResponse, setSandboxResponse] = useState<any>(null);
   const [sandboxLoading, setSandboxLoading] = useState(false);
 
@@ -89,20 +89,33 @@ export const DashboardIntegration: React.FC<DashboardIntegrationProps> = ({
     setSandboxLoading(true);
     setTimeout(() => {
       if (sandboxEndpoint === 'GET /api/v1/tracking/:resi') {
-        const item = tracks[sandboxResi] || tracks['LN25083001'];
-        setSandboxResponse({
-          status: 200,
-          success: true,
-          data: {
-            resi: sandboxResi,
-            ...item
-          },
-          meta: {
-            source: 'TRENS-LOGISTIC Core Engine',
-            latencyMs: 34,
-            timestamp: new Date().toISOString()
-          }
-        });
+        const item = tracks[sandboxResi];
+        if (item) {
+          setSandboxResponse({
+            status: 200,
+            success: true,
+            data: {
+              resi: sandboxResi,
+              ...item
+            },
+            meta: {
+              source: 'TRENS-LOGISTIC Core Engine',
+              latencyMs: 28,
+              timestamp: new Date().toISOString()
+            }
+          });
+        } else {
+          setSandboxResponse({
+            status: 404,
+            success: false,
+            message: `Nomor resi '${sandboxResi}' tidak ditemukan dalam database pengiriman.`,
+            meta: {
+              source: 'TRENS-LOGISTIC Core Engine',
+              latencyMs: 16,
+              timestamp: new Date().toISOString()
+            }
+          });
+        }
       } else if (sandboxEndpoint === 'POST /api/v1/shipments') {
         setSandboxResponse({
           status: 201,
@@ -267,7 +280,7 @@ export const DashboardIntegration: React.FC<DashboardIntegrationProps> = ({
                   path: '/api/v1/tracking/:resi',
                   desc: 'Mengecek status tracking dan riwayat checkpoint suatu nomor resi publik.',
                   auth: 'Public / API Key',
-                  example: 'GET https://api.trens-logistic.com/v1/tracking/LN25083001'
+                  example: 'GET https://api.trens-logistic.com/v1/tracking/:resi'
                 },
                 {
                   method: 'POST',
@@ -281,7 +294,7 @@ export const DashboardIntegration: React.FC<DashboardIntegrationProps> = ({
                   path: '/api/v1/shipments/:resi/status',
                   desc: 'Mengupdate status kiriman (Diproses, Perjalanan, Tiba, Terkirim) dan menambahkan checkpoint perjalanan baru.',
                   auth: 'Bearer Token',
-                  example: 'PUT https://api.trens-logistic.com/v1/shipments/LN25083001/status'
+                  example: 'PUT https://api.trens-logistic.com/v1/shipments/:resi/status'
                 },
                 {
                   method: 'POST',
@@ -595,12 +608,12 @@ export const DashboardIntegration: React.FC<DashboardIntegrationProps> = ({
             <button
               onClick={() => {
                 const code = snippetLang === 'nodejs'
-                  ? `// Node.js (Fetch API)\nconst resi = 'LN25083001';\nconst res = await fetch('https://api.trens-logistic.com/v1/tracking/' + resi, {\n  headers: {\n    'Authorization': 'Bearer ' + process.env.TRENS_API_KEY\n  }\n});\nconst trackingData = await res.json();\nconsole.log('Status Pengiriman:', trackingData.data.status);`
+                  ? `// Node.js (Fetch API)\nconst resi = 'YOUR_RESI_NUMBER';\nconst res = await fetch('https://api.trens-logistic.com/v1/tracking/' + resi, {\n  headers: {\n    'Authorization': 'Bearer ' + process.env.TRENS_API_KEY\n  }\n});\nconst trackingData = await res.json();\nconsole.log('Status Pengiriman:', trackingData.data.status);`
                   : snippetLang === 'curl'
-                  ? `curl -X GET "https://api.trens-logistic.com/v1/tracking/LN25083001" \\\n  -H "Authorization: Bearer YOUR_API_KEY" \\\n  -H "Accept: application/json"`
+                  ? `curl -X GET "https://api.trens-logistic.com/v1/tracking/YOUR_RESI_NUMBER" \\\n  -H "Authorization: Bearer YOUR_API_KEY" \\\n  -H "Accept: application/json"`
                   : snippetLang === 'python'
-                  ? `import requests\n\nurl = "https://api.trens-logistic.com/v1/tracking/LN25083001"\nheaders = {"Authorization": "Bearer YOUR_API_KEY"}\nresponse = requests.get(url, headers=headers)\nprint(response.json())`
-                  : `<?php\n$ch = curl_init("https://api.trens-logistic.com/v1/tracking/LN25083001");\ncurl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer YOUR_API_KEY"]);\ncurl_setopt($ch, CURLOPT_RETURNTRANSFER, true);\n$response = curl_exec($ch);\ncurl_close($ch);\necho $response;`;
+                  ? `import requests\n\nurl = "https://api.trens-logistic.com/v1/tracking/YOUR_RESI_NUMBER"\nheaders = {"Authorization": "Bearer YOUR_API_KEY"}\nresponse = requests.get(url, headers=headers)\nprint(response.json())`
+                  : `<?php\n$ch = curl_init("https://api.trens-logistic.com/v1/tracking/YOUR_RESI_NUMBER");\ncurl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer YOUR_API_KEY"]);\ncurl_setopt($ch, CURLOPT_RETURNTRANSFER, true);\n$response = curl_exec($ch);\ncurl_close($ch);\necho $response;`;
                 copyToClipboard(code, 'snippet');
               }}
               className="absolute right-3 top-3 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center gap-1 text-[11px]"
@@ -611,7 +624,7 @@ export const DashboardIntegration: React.FC<DashboardIntegrationProps> = ({
 
             <pre className="text-emerald-300">
               {snippetLang === 'nodejs' && `// Node.js (Fetch API)
-const resi = 'LN25083001';
+const resi = 'YOUR_RESI_NUMBER';
 const res = await fetch('https://api.trens-logistic.com/v1/tracking/' + resi, {
   headers: {
     'Authorization': 'Bearer ' + process.env.TRENS_API_KEY
@@ -621,13 +634,13 @@ const trackingData = await res.json();
 console.log('Status Pengiriman:', trackingData.data.status);
 console.log('Riwayat Perjalanan:', trackingData.data.history);`}
 
-              {snippetLang === 'curl' && `curl -X GET "https://api.trens-logistic.com/v1/tracking/LN25083001" \\
+              {snippetLang === 'curl' && `curl -X GET "https://api.trens-logistic.com/v1/tracking/YOUR_RESI_NUMBER" \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -H "Accept: application/json"`}
 
               {snippetLang === 'python' && `import requests
 
-url = "https://api.trens-logistic.com/v1/tracking/LN25083001"
+url = "https://api.trens-logistic.com/v1/tracking/YOUR_RESI_NUMBER"
 headers = {
     "Authorization": "Bearer YOUR_API_KEY",
     "Accept": "application/json"
@@ -640,11 +653,11 @@ print("Status:", data["data"]["status"])`}
               {snippetLang === 'php' && `<?php
 $curl = curl_init();
 curl_setopt_array($curl, [
-  CURLOPT_URL => "https://api.trens-logistic.com/v1/tracking/LN25083001",
+  CURLOPT_URL => "https://api.trens-logistic.com/v1/tracking/YOUR_RESI_NUMBER",
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_HTTPHEADER => [
     "Authorization: Bearer YOUR_API_KEY",
-    "Accept: application/json"
+    "Accept": "application/json"
   ]
 ]);
 

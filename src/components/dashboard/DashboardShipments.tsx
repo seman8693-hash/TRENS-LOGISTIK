@@ -188,8 +188,24 @@ export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-400">
-                    <AlertCircle className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                    <p className="font-semibold">Tidak ada data resi yang cocok dengan filter pencarian.</p>
+                    <Package className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    <p className="font-semibold text-slate-600">
+                      {entries.length === 0 ? 'Belum ada data resi pengiriman.' : 'Tidak ada data resi yang cocok dengan filter pencarian.'}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {entries.length === 0 
+                        ? 'Database resi Anda saat ini bersih dan siap digunakan untuk pengiriman riil.' 
+                        : 'Coba ubah kata kunci atau reset filter status/moda.'}
+                    </p>
+                    {entries.length === 0 && (
+                      <button
+                        onClick={onOpenCreateShipment}
+                        className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#0B1B4D] hover:bg-blue-900 text-amber-300 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>Buat Resi Pengiriman Pertama</span>
+                      </button>
+                    )}
                   </td>
                 </tr>
               ) : (

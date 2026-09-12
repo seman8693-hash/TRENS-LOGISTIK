@@ -134,6 +134,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenKemitraanModal, onOpenDash
 
           {/* Mobile Menu Trigger */}
           <div className="flex items-center gap-2 xl:hidden">
+            {onOpenDashboard && (
+              <button
+                id="btn-nav-dashboard-mobile"
+                onClick={onOpenDashboard}
+                className="sm:hidden inline-flex items-center gap-1.5 bg-[#0B1B4D] hover:bg-blue-950 text-amber-300 font-bold px-2.5 py-1.5 text-xs rounded-xl border border-blue-900 shadow-xs"
+                title="Buka Dashboard Admin"
+              >
+                <LayoutDashboard className="w-3.5 h-3.5 text-amber-400" />
+                <span>Admin</span>
+              </button>
+            )}
             <button 
               id="btn-mobile-menu"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

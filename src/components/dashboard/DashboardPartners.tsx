@@ -152,8 +152,15 @@ export const DashboardPartners: React.FC<DashboardPartnersProps> = ({
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center text-slate-400">
-                    <AlertCircle className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-                    <p className="font-semibold">Tidak ada data pendaftaran kemitraan yang cocok.</p>
+                    <Handshake className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    <p className="font-semibold text-slate-600">
+                      {partners.length === 0 ? 'Belum ada pengajuan kemitraan baru.' : 'Tidak ada data pendaftaran kemitraan yang cocok.'}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {partners.length === 0 
+                        ? 'Formulir pendaftaran agen, armada truk, dan korporat dari landing page akan masuk ke tabel ini.' 
+                        : 'Coba ubah kata kunci atau filter status kemitraan.'}
+                    </p>
                   </td>
                 </tr>
               ) : (

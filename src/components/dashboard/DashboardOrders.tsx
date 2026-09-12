@@ -119,8 +119,15 @@ export const DashboardOrders: React.FC<DashboardOrdersProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {filtered.length === 0 ? (
           <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-400">
-            <AlertCircle className="w-8 h-8 mx-auto mb-2 text-slate-300" />
-            <p className="font-semibold">Tidak ada pesanan pickup yang cocok dengan filter.</p>
+            <FileText className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+            <p className="font-semibold text-slate-600">
+              {orders.length === 0 ? 'Belum ada permintaan order penjemputan barang.' : 'Tidak ada pesanan pickup yang cocok dengan filter.'}
+            </p>
+            <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+              {orders.length === 0 
+                ? 'Setiap booking penjemputan baru yang dikirimkan oleh pelanggan melalui website akan langsung muncul di sini secara real-time.' 
+                : 'Coba ubah kata kunci atau pilih status filter lain.'}
+            </p>
           </div>
         ) : (
           filtered.map((order) => {

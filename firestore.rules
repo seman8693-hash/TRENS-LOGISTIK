@@ -16,5 +16,10 @@ service cloud.firestore {
     match /partners/{partnerId} {
       allow read, write: if true;
     }
+
+    // Connection test probe
+    match /test/{testId} {
+      allow read, write: if true;
+    }
   }
 }

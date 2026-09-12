@@ -67,7 +67,7 @@ export const TestimoniFaqSection: React.FC = () => {
     },
     {
       q: 'Bagaimana cara memantau status posisi kiriman saya?',
-      a: 'Gunakan nomor resi yang Anda dapatkan saat pemesanan (contoh: LN25083001) lalu masukkan ke menu Tracking Pengiriman di website ini. Status akan diperbarui di setiap transit hub.'
+      a: 'Gunakan nomor resi / AWB resmi yang Anda dapatkan saat pemesanan lalu masukkan ke menu Tracking Pengiriman di website ini. Status akan diperbarui secara real-time di setiap transit hub.'
     }
   ];
 

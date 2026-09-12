@@ -347,8 +347,26 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
-              {recentShipments.map(([resi, t]) => (
-                <tr key={resi} className="hover:bg-slate-50/80 transition-colors">
+              {recentShipments.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-slate-400">
+                    <Package className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    <p className="font-semibold text-slate-600">Belum ada data resi pengiriman.</p>
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      Semua resi baru yang dibuat akan langsung tampil di sini dan tersinkronisasi secara real-time.
+                    </p>
+                    <button
+                      onClick={onOpenCreateShipment}
+                      className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0B1B4D] hover:bg-blue-900 text-amber-300 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Buat Resi Pertama</span>
+                    </button>
+                  </td>
+                </tr>
+              ) : (
+                recentShipments.map(([resi, t]) => (
+                  <tr key={resi} className="hover:bg-slate-50/80 transition-colors">
                   <td className="py-3.5 px-4 font-mono font-bold text-blue-900 whitespace-nowrap">
                     {resi}
                   </td>
@@ -406,7 +424,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                     </div>
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>

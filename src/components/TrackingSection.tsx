@@ -161,7 +161,7 @@ export const TrackingSection: React.FC<TrackingSectionProps> = ({ onPrintLabel }
                 type="text"
                 value={resiInput}
                 onChange={(e) => setResiInput(e.target.value.toUpperCase())}
-                placeholder="Masukkan No. Resi (contoh: LN25083001)"
+                placeholder="Masukkan No. Resi Anda..."
                 className="w-full bg-white border border-slate-300 focus:border-blue-700 rounded-xl px-4 py-3.5 text-sm sm:text-base font-mono font-bold tracking-wider text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-100 uppercase"
               />
             </div>
