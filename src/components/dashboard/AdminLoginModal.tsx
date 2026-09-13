@@ -256,7 +256,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
               </div>
             </div>
 
-            {/* Remember Me Toggle */}
+            {/* Remember Me Toggle & Reset */}
             <div className="flex items-center justify-between text-xs pt-1">
               <label className="flex items-center gap-2 cursor-pointer select-none text-slate-600 hover:text-slate-900 font-medium">
                 <input
@@ -265,8 +265,23 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer"
                 />
-                <span>Ingat sesi login di perangkat ini</span>
+                <span>Ingat sesi</span>
               </label>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setStoredAdminPassword('admin123');
+                  setPassword('admin123');
+                  setError(null);
+                  alert('Kata sandi berhasil di-reset ke default: admin123');
+                }}
+                className="text-[11px] font-bold text-amber-600 hover:text-amber-700 hover:underline flex items-center gap-1 cursor-pointer"
+                title="Kembalikan password ke default bawaan"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Lupa / Reset Sandi?</span>
+              </button>
             </div>
 
             {/* Buttons */}
