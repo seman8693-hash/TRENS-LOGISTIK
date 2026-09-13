@@ -32,8 +32,8 @@ export const MAIN_STANDALONE_HTML = `<!DOCTYPE html>
         <a href="tel:081389755106" class="text-white hover:text-amber-400 font-bold transition-colors">
           📞 0813-8975-5106
         </a>
-        <a href="https://wa.me/6285694310979" target="_blank" class="text-emerald-400 hover:text-emerald-300 font-bold transition-colors">
-          💬 WA: 0856-9431-0979
+        <a href="https://wa.me/6281389755106" target="_blank" class="text-emerald-400 hover:text-emerald-300 font-bold transition-colors">
+          💬 WA: 0813-8975-5106
         </a>
       </div>
     </div>
@@ -65,7 +65,7 @@ export const MAIN_STANDALONE_HTML = `<!DOCTYPE html>
       </nav>
 
       <div class="flex items-center gap-3">
-        <a href="https://wa.me/6281280005183?text=Halo%20TRENS-LOGISTIC%2C%20saya%20tertarik%20mendaftar%20Kemitraan%20Pengiriman." target="_blank" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2.5 text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5">
+        <a href="https://wa.me/6281389755106?text=Halo%20TRENS-LOGISTIC%2C%20saya%20tertarik%20mendaftar%20Kemitraan%20Pengiriman." target="_blank" class="bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2.5 text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5">
           <span>🤝 Daftar Kemitraan</span>
         </a>
       </div>
@@ -449,7 +449,7 @@ export const MAIN_STANDALONE_HTML = `<!DOCTYPE html>
         <h4 class="text-white font-bold text-sm mb-3">Head Office (Kantor Pusat)</h4>
         <p class="mb-2">📍 Jl. Jati 1 No. 12 RT 001/06 Kel. Kebon Bawang, Kec. Tanjung Priok, Jakarta Utara</p>
         <p class="mb-2">📞 Telp: 0813-8975-5106</p>
-        <p class="mb-2">💬 WhatsApp: 0856-9431-0979</p>
+        <p class="mb-2">💬 WhatsApp: 0813-8975-5106</p>
         <p>✉️ halo@trens-logistic.id</p>
       </div>
 
@@ -584,7 +584,7 @@ export const MAIN_STANDALONE_HTML = `<!DOCTYPE html>
       const catatan = document.getElementById('ord-catatan').value;
 
       const pesanWa = \`Halo TRENS-LOGISTIC, saya ingin memesan pengiriman:\\n- Pengirim: \${nama}\\n- No HP: \${hp}\\n- Moda: \${moda}\\n- Rute: \${rute}\\n- Barang: \${barang}\\n- Berat: \${berat} Kg\\n- Catatan: \${catatan}\`;
-      const urlWa = 'https://wa.me/6285694310979?text=' + encodeURIComponent(pesanWa);
+      const urlWa = 'https://wa.me/6281389755106?text=' + encodeURIComponent(pesanWa);
       window.open(urlWa, '_blank');
       alert('Pemesanan berhasil diproses! Anda akan diarahkan ke WhatsApp CS TRENS-LOGISTIC.');
     }

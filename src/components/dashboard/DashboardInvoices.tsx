@@ -256,7 +256,7 @@ export const DashboardInvoices: React.FC<DashboardInvoicesProps> = ({ tracks, or
 
   const handleSendWA = (invoice: Invoice) => {
     const phone = (invoice.customerPhone || '').replace(/[^0-9]/g, '');
-    const targetPhone = phone.startsWith('0') ? '62' + phone.slice(1) : (phone || '6285694310979');
+    const targetPhone = phone.startsWith('0') ? '62' + phone.slice(1) : (phone || '6281389755106');
     
     const text = `Halo *${invoice.customerName}*, berikut adalah rincian Faktur Tagihan Anda:%0A%0A` +
       `• No Invoice: *#${invoice.id}*%0A` +
@@ -285,10 +285,10 @@ export const DashboardInvoices: React.FC<DashboardInvoicesProps> = ({ tracks, or
         <div>
           <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
             <ReceiptText className="w-5 h-5 text-blue-700" />
-            <span>Faktur Invoice, Resi Penjualan &amp; Surat Jalan (DO)</span>
+            <span>Resi Pengiriman &amp; Surat Jalan (DO)</span>
           </h2>
           <p className="text-xs text-slate-500 mt-1">
-            Penerbitan dokumen legal tagihan ekspedisi real-time dengan pengaturan pajak, packing, asuransi, dan auto-harga.
+            Penerbitan dokumen legal pengiriman kargo real-time dengan pengaturan pajak, packing, asuransi, dan auto-harga.
           </p>
         </div>
 
@@ -567,8 +567,8 @@ export const DashboardInvoices: React.FC<DashboardInvoicesProps> = ({ tracks, or
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs overflow-x-auto space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-extrabold text-slate-900 text-sm">Daftar Faktur &amp; Dokumen Penjualan</h3>
-              <p className="text-xs text-slate-500">Klik "Buka Dokumen" untuk melihat Faktur Invoice, Resi Penjualan &amp; Surat Jalan (DO).</p>
+              <h3 className="font-extrabold text-slate-900 text-sm">Daftar Dokumen Resi &amp; Pengiriman</h3>
+              <p className="text-xs text-slate-500">Klik "Buka Dokumen" untuk melihat Resi Pengiriman &amp; Surat Jalan (DO).</p>
             </div>
             <span className="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full">
               {filteredInvoices.length} Dokumen
@@ -651,7 +651,7 @@ export const DashboardInvoices: React.FC<DashboardInvoicesProps> = ({ tracks, or
                         type="button"
                         onClick={() => setSelectedInvoiceForModal(invoice)}
                         className="px-2.5 py-1.5 bg-[#0B1B4D] hover:bg-blue-900 text-white font-extrabold rounded-xl text-[10px] flex items-center gap-1 shadow-2xs transition-transform active:scale-95 cursor-pointer"
-                        title="Buka Faktur Invoice, Resi Penjualan & Surat Jalan (DO)"
+                        title="Buka Resi Pengiriman & Surat Jalan (DO)"
                       >
                         <FileText className="w-3 h-3 text-amber-400" />
                         <span>Dokumen</span>
@@ -682,7 +682,7 @@ export const DashboardInvoices: React.FC<DashboardInvoicesProps> = ({ tracks, or
 
       </div>
 
-      {/* MODAL 3-IN-1: FAKTUR INVOICE, RESI PENJUALAN & SURAT JALAN DO */}
+      {/* MODAL: RESI PENGIRIMAN & SURAT JALAN DO */}
       {selectedInvoiceForModal && (
         <InvoiceDocumentModal
           isOpen={true}

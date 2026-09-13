@@ -8,9 +8,20 @@ import {
   CheckCircle2,
   Plus,
   Send,
-  ArrowRight
+  ArrowRight,
+  KeyRound,
+  Lock,
+  Eye,
+  EyeOff,
+  Check,
+  RotateCcw
 } from 'lucide-react';
 import { DashboardTab, OrderRequest, PartnerLead, TrackingItem } from '../../types';
+import { 
+  getStoredAdminPassword, 
+  setStoredAdminPassword, 
+  DEFAULT_ADMIN_PASSWORD 
+} from '../../utils/adminAuth';
 
 interface DashboardAdminProps {
   tracks: Record<string, TrackingItem>;
@@ -41,6 +52,58 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   const [newTaskOwner, setNewTaskOwner] = useState('Ops 1');
   const [newTaskPriority, setNewTaskPriority] = useState<AdminTaskPriority>('Normal');
   const [newTaskStatus, setNewTaskStatus] = useState<AdminTaskStatus>('Baru');
+
+  // Password Management State
+  const [currentAdminPassword, setCurrentAdminPassword] = useState<string>(getStoredAdminPassword());
+  const [oldPasswordInput, setOldPasswordInput] = useState('');
+  const [newPasswordInput, setNewPasswordInput] = useState('');
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
+  const [showPasswordText, setShowPasswordText] = useState(false);
+  const [passwordFeedback, setPasswordFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const handleChangePassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordFeedback(null);
+
+    if (oldPasswordInput !== currentAdminPassword) {
+      setPasswordFeedback({ type: 'error', message: 'Kata sandi lama salah! Silakan coba lagi.' });
+      return;
+    }
+
+    if (!newPasswordInput.trim() || newPasswordInput.length < 4) {
+      setPasswordFeedback({ type: 'error', message: 'Kata sandi baru minimal harus 4 karakter.' });
+      return;
+    }
+
+    if (newPasswordInput !== confirmPasswordInput) {
+      setPasswordFeedback({ type: 'error', message: 'Konfirmasi kata sandi baru tidak cocok!' });
+      return;
+    }
+
+    const ok = setStoredAdminPassword(newPasswordInput);
+    if (ok) {
+      setCurrentAdminPassword(newPasswordInput);
+      setOldPasswordInput('');
+      setNewPasswordInput('');
+      setConfirmPasswordInput('');
+      setPasswordFeedback({ type: 'success', message: 'Kata sandi admin berhasil diperbarui!' });
+      setTimeout(() => setPasswordFeedback(null), 5000);
+    } else {
+      setPasswordFeedback({ type: 'error', message: 'Gagal memperbarui kata sandi.' });
+    }
+  };
+
+  const handleResetDefaultPassword = () => {
+    if (window.confirm('Reset kata sandi admin ke bawaan (admin123)?')) {
+      setStoredAdminPassword(DEFAULT_ADMIN_PASSWORD);
+      setCurrentAdminPassword(DEFAULT_ADMIN_PASSWORD);
+      setOldPasswordInput('');
+      setNewPasswordInput('');
+      setConfirmPasswordInput('');
+      setPasswordFeedback({ type: 'success', message: 'Kata sandi telah direset ke bawaan (admin123).' });
+      setTimeout(() => setPasswordFeedback(null), 5000);
+    }
+  };
 
   const totalShipments = Object.keys(tracks).length;
   const pendingPickup = orders.filter((o) => o.status === 'Baru' || o.status === 'Dikonfirmasi').length;
@@ -237,6 +300,117 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
               <span>Simpan Catatan</span>
             </button>
           </div>
+        </div>
+
+        {/* Card: Manajemen Kata Sandi Admin */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 md:col-span-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center">
+                <KeyRound className="w-4 h-4 text-amber-700" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">Keamanan &amp; Kata Sandi Admin</h3>
+                <p className="text-xs text-slate-500">Atur kata sandi otorisasi untuk mengakses Dashboard Admin &amp; Sistem Kargo</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Terproteksi Sandi</span>
+              </span>
+              {currentAdminPassword !== DEFAULT_ADMIN_PASSWORD && (
+                <button
+                  type="button"
+                  onClick={handleResetDefaultPassword}
+                  className="text-[11px] font-semibold text-slate-500 hover:text-slate-800 px-2 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center gap-1 transition-colors cursor-pointer"
+                  title="Kembalikan ke sandi bawaan admin123"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>Reset Default</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {passwordFeedback && (
+            <div className={`mt-4 p-3 rounded-xl text-xs font-semibold flex items-center gap-2 ${
+              passwordFeedback.type === 'success' 
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' 
+                : 'bg-rose-50 text-rose-800 border border-rose-200'
+            }`}>
+              {passwordFeedback.type === 'success' ? (
+                <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+              ) : (
+                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+              )}
+              <span>{passwordFeedback.message}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleChangePassword} className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Kata Sandi Lama <span className="text-rose-500">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  type={showPasswordText ? 'text' : 'password'}
+                  value={oldPasswordInput}
+                  onChange={(e) => setOldPasswordInput(e.target.value)}
+                  placeholder="Sandi saat ini..."
+                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Kata Sandi Baru <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type={showPasswordText ? 'text' : 'password'}
+                value={newPasswordInput}
+                onChange={(e) => setNewPasswordInput(e.target.value)}
+                placeholder="Minimal 4 karakter..."
+                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Konfirmasi Sandi Baru <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type={showPasswordText ? 'text' : 'password'}
+                value={confirmPasswordInput}
+                onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                placeholder="Ulangi sandi baru..."
+                className="w-full px-3 py-2 text-xs border border-slate-300 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+              />
+            </div>
+
+            <div className="sm:col-span-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+              <label className="flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={showPasswordText}
+                  onChange={(e) => setShowPasswordText(e.target.checked)}
+                  className="w-3.5 h-3.5 rounded text-blue-600 border-slate-300 focus:ring-blue-500"
+                />
+                <span>Tampilkan karakter sandi</span>
+              </label>
+
+              <button
+                type="submit"
+                className="bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+              >
+                <Lock className="w-3.5 h-3.5 text-amber-400" />
+                <span>Simpan Perubahan Kata Sandi</span>
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

@@ -424,10 +424,10 @@ export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
                             <button
                               onClick={() => handleOpenShipmentInvoice(resi, t)}
                               className="px-2 py-1 bg-[#0B1B4D] hover:bg-blue-950 text-white font-bold rounded-lg transition-colors text-[11px] flex items-center gap-1 shadow-2xs"
-                              title="Buka Faktur Invoice, Resi Penjualan & Surat Jalan (DO)"
+                              title="Buka Resi Pengiriman & Surat Jalan (DO)"
                             >
                               <FileText className="w-3 h-3 text-amber-400" />
-                              <span>Faktur</span>
+                              <span>Resi / DO</span>
                             </button>
                             <button
                               onClick={() => onSelectUpdateResi(resi)}

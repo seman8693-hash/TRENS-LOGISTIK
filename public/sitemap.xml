@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- Beranda Utama & Pelayanan Logistik -->
+  <url>
+    <loc>https://trenslogistic.com/</loc>
+    <lastmod>2026-09-13T10:00:00+07:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="id" href="https://trenslogistic.com/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://trenslogistic.com/" />
+    <image:image>
+      <image:loc>https://sc04.alicdn.com/kf/Sd6bcc0f091b4437b89123bed660abc13Z.jpg</image:loc>
+      <image:title>Armada Pengiriman TRENS-LOGISTIC Darat Laut Udara</image:title>
+      <image:caption>Layanan ekspedisi logistik nusantara terpercaya dan terlengkap di Indonesia</image:caption>
+    </image:image>
+  </url>
+
+  <!-- Lacak Resi & Tracking Paket Real-time -->
+  <url>
+    <loc>https://trenslogistic.com/#tracking</loc>
+    <lastmod>2026-09-13T10:00:00+07:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+    <xhtml:link rel="alternate" hreflang="id" href="https://trenslogistic.com/#tracking" />
+  </url>
+
+  <!-- Cek Ongkir & Kalkulator Volumetrik Darat, Laut, Udara -->
+  <url>
+    <loc>https://trenslogistic.com/#kalkulator</loc>
+    <lastmod>2026-09-13T10:00:00+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+    <xhtml:link rel="alternate" hreflang="id" href="https://trenslogistic.com/#kalkulator" />
+  </url>
+
+  <!-- Layanan Ekspedisi Darat, Laut (Kapal RORO), Udara Express -->
+  <url>
+    <loc>https://trenslogistic.com/#layanan</loc>
+    <lastmod>2026-09-13T10:00:00+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="id" href="https://trenslogistic.com/#layanan" />
+  </url>
+
+  <!-- Jangkauan Kota & Coverage Rute Nusantara -->
+  <url>
+    <loc>https://trenslogistic.com/#coverage</loc>
+    <lastmod>2026-09-13T10:00:00+07:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+    <xhtml:link rel="alternate" hreflang="id" href="https://trenslogistic.com/#coverage" />
+  </url>
+
+  <!-- Peluang Kemitraan Ekspedisi & Agen Logistik -->
+  <url>
+    <loc>https://trenslogistic.com/#kemitraan</loc>
+    <lastmod>2026-09-13T10:00:00+07:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+    <xhtml:link rel="alternate" hreflang="id" href="https://trenslogistic.com/#kemitraan" />
+  </url>
+
+  <!-- Tanya Jawab (FAQ) & Bantuan Pengiriman -->
+  <url>
+    <loc>https://trenslogistic.com/#faq</loc>
+    <lastmod>2026-09-13T10:00:00+07:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="id" href="https://trenslogistic.com/#faq" />
+  </url>
+
+  <!-- Kontak Customer Service & Hotline 24/7 -->
+  <url>
+    <loc>https://trenslogistic.com/#kontak</loc>
+    <lastmod>2026-09-13T10:00:00+07:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="id" href="https://trenslogistic.com/#kontak" />
+  </url>
+
+</urlset>

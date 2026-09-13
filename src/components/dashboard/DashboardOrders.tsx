@@ -268,10 +268,10 @@ export const DashboardOrders: React.FC<DashboardOrdersProps> = ({
                     <button
                       onClick={() => handleOpenOrderInvoice(order)}
                       className="px-2.5 py-1.5 bg-[#0B1B4D] hover:bg-blue-950 text-white font-bold rounded-lg text-xs flex items-center gap-1 transition-colors shadow-2xs"
-                      title="Buka Faktur Invoice, Resi Penjualan & Surat Jalan (DO)"
+                      title="Buka Resi Pengiriman & Surat Jalan (DO)"
                     >
                       <FileText className="w-3.5 h-3.5 text-amber-400" />
-                      <span className="hidden sm:inline">Faktur / DO</span>
+                      <span className="hidden sm:inline">Resi / DO</span>
                     </button>
 
                     <button

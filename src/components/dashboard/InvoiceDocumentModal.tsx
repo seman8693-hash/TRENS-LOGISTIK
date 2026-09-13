@@ -1,7 +1,6 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { 
   FileText, 
-  Receipt, 
   Truck, 
   X, 
   Printer, 
@@ -33,7 +32,7 @@ interface InvoiceDocumentModalProps {
   onSaveInvoice?: (updated: Invoice) => void;
 }
 
-type DocumentTab = 'invoice' | 'resi' | 'surat_jalan';
+type DocumentTab = 'resi_pengiriman' | 'surat_jalan';
 
 export const InvoiceDocumentModal: React.FC<InvoiceDocumentModalProps> = ({
   isOpen,
@@ -41,7 +40,7 @@ export const InvoiceDocumentModal: React.FC<InvoiceDocumentModalProps> = ({
   invoice,
   onSaveInvoice
 }) => {
-  const [activeTab, setActiveTab] = useState<DocumentTab>('invoice');
+  const [activeTab, setActiveTab] = useState<DocumentTab>('resi_pengiriman');
   const [isCapturing, setIsCapturing] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -216,12 +215,10 @@ export const InvoiceDocumentModal: React.FC<InvoiceDocumentModalProps> = ({
 
   const handleSendWA = () => {
     const phone = (invoice.customerPhone || '').replace(/[^0-9]/g, '');
-    const targetPhone = phone.startsWith('0') ? '62' + phone.slice(1) : (phone || '6285694310979');
+    const targetPhone = phone.startsWith('0') ? '62' + phone.slice(1) : (phone || '6281389755106');
     
-    const docTitle = activeTab === 'invoice' 
-      ? 'FAKTUR INVOICE RESMI' 
-      : activeTab === 'resi' 
-      ? 'RESI PENJUALAN' 
+    const docTitle = activeTab === 'resi_pengiriman' 
+      ? 'RESI PENGIRIMAN' 
       : 'SURAT JALAN (DO)';
 
     const effectiveStamp = paymentStatus === 'CUSTOM' ? (customStampText || 'CUSTOM') : paymentStatus;
@@ -261,30 +258,16 @@ export const InvoiceDocumentModal: React.FC<InvoiceDocumentModalProps> = ({
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
-              id="tab-faktur-invoice"
-              onClick={() => setActiveTab('invoice')}
+              id="tab-resi-pengiriman"
+              onClick={() => setActiveTab('resi_pengiriman')}
               className={`px-3.5 py-1.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
-                activeTab === 'invoice'
+                activeTab === 'resi_pengiriman'
                   ? 'bg-[#0B1B4D] text-white shadow-md'
                   : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
               }`}
             >
               <FileText className="w-3.5 h-3.5" />
-              <span>FAKTUR INVOICE</span>
-            </button>
-
-            <button
-              type="button"
-              id="tab-resi-penjualan"
-              onClick={() => setActiveTab('resi')}
-              className={`px-3.5 py-1.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
-                activeTab === 'resi'
-                  ? 'bg-[#0B1B4D] text-white shadow-md'
-                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-              }`}
-            >
-              <Receipt className="w-3.5 h-3.5" />
-              <span>RESI PENJUALAN</span>
+              <span>RESI PENGIRIMAN</span>
             </button>
 
             <button
@@ -605,14 +588,14 @@ export const InvoiceDocumentModal: React.FC<InvoiceDocumentModalProps> = ({
             ref={documentRef}
             className="w-full max-w-[540px] bg-white border border-slate-200 rounded-2xl p-6 shadow-sm print:shadow-none print:border-none print:p-2 relative overflow-hidden"
           >
-            {/* TAB 1: FAKTUR INVOICE (Matching Screenshot 1) */}
-            {activeTab === 'invoice' && (
+            {/* TAB 1: RESI PENGIRIMAN */}
+            {activeTab === 'resi_pengiriman' && (
               <div className="space-y-4 text-slate-800">
                 {/* Header */}
                 <div className="flex items-start justify-between border-b-2 border-blue-900 pb-3">
                   <div>
                     <h2 className="text-xl sm:text-2xl font-black text-blue-950 tracking-tight uppercase">
-                      BUKTI BAYAR
+                      RESI PENGIRIMAN
                     </h2>
                     <p className="text-xs font-extrabold text-slate-600 font-mono mt-0.5">
                       NO: #{invoice.id || 'INV-3614'}
@@ -792,116 +775,7 @@ export const InvoiceDocumentModal: React.FC<InvoiceDocumentModalProps> = ({
               </div>
             )}
 
-            {/* TAB 2: RESI PENJUALAN (Matching Screenshot 2) */}
-            {activeTab === 'resi' && (
-              <div className="max-w-[360px] mx-auto text-slate-900 font-mono text-xs border border-dashed border-slate-300 p-4 rounded-xl bg-slate-50/50">
-                <div className="text-center pb-3 border-b border-dashed border-slate-400 space-y-1">
-                  <h3 className="font-black text-sm text-slate-900">TRENS LOGISTIK</h3>
-                  <p className="text-[10px] uppercase font-bold text-slate-600">
-                    RESI &amp; BUKTI PENJUALAN RESMI
-                  </p>
-                </div>
-
-                <div className="py-3 border-b border-dashed border-slate-400 space-y-1 text-[11px]">
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">No. Resi:</span>
-                    <span className="font-bold">RESI-{invoice.id || 'INV-3614'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Waktu:</span>
-                    <span>{invoice.issueDate || '6/9/2026, 11.30.41'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Pembeli:</span>
-                    <span className="font-bold">{invoice.customerName || 'IWAN'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Kasir/Operator:</span>
-                    <span>Master Admin</span>
-                  </div>
-                </div>
-
-                {/* Items */}
-                <div className="py-3 border-b border-dashed border-slate-400 space-y-1 text-[11px]">
-                  <p className="font-bold">{invoice.itemDescription || 'UNDANGAN HC-9912 X1'}</p>
-                  <div className="flex justify-between text-slate-600">
-                    <span>Harga Produk:</span>
-                    <span className="font-bold font-mono">Rp {baseGoodsAmount.toLocaleString('id-ID')}</span>
-                  </div>
-
-                  {ongkirCargo > 0 && (
-                    <div className="flex justify-between text-slate-600">
-                      <span>Ongkir Cargo:</span>
-                      <span className="font-bold font-mono">+ Rp {ongkirCargo.toLocaleString('id-ID')}</span>
-                    </div>
-                  )}
-
-                  {biayaPacking > 0 && (
-                    <div className="flex justify-between text-slate-600">
-                      <span>Biaya Packing:</span>
-                      <span className="font-bold font-mono">+ Rp {biayaPacking.toLocaleString('id-ID')}</span>
-                    </div>
-                  )}
-
-                  {asuransi > 0 && (
-                    <div className="flex justify-between text-slate-600">
-                      <span>Asuransi:</span>
-                      <span className="font-bold font-mono">+ Rp {asuransi.toLocaleString('id-ID')}</span>
-                    </div>
-                  )}
-
-                  {usePpn && calculatedPpn > 0 && (
-                    <div className="flex justify-between text-slate-600">
-                      <span>PPN ({ppnPercent}%):</span>
-                      <span className="font-bold font-mono">+ Rp {calculatedPpn.toLocaleString('id-ID')}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Total */}
-                <div className="py-2.5 border-b border-dashed border-slate-400 flex justify-between items-center text-sm font-black">
-                  <span>TOTAL TAGIHAN:</span>
-                  <span className="font-mono">Rp {grandTotal.toLocaleString('id-ID')}</span>
-                </div>
-
-                {/* Status */}
-                <div className="py-2.5 border-b border-dashed border-slate-400 text-[11px] space-y-1">
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Status Bayar:</span>
-                    <span className={`font-bold ${
-                      paymentStatus === 'LUNAS' ? 'text-emerald-700' :
-                      paymentStatus === 'BELUM LUNAS' ? 'text-rose-700' :
-                      paymentStatus === 'DP / SEBAGIAN' ? 'text-amber-700' :
-                      paymentStatus === 'JATUH TEMPO' ? 'text-purple-700' : 'text-slate-700'
-                    }`}>
-                      {paymentStatus === 'CUSTOM' ? (customStampText || 'CUSTOM') : paymentStatus}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Metode:</span>
-                    <span className="font-bold text-slate-800">{metodePembayaran || 'NON-TUNAI / ONLINE'}</span>
-                  </div>
-                </div>
-
-                {/* Barcode */}
-                <div className="pt-3 text-center space-y-1">
-                  <div className="flex justify-center items-center gap-0.5 h-8">
-                    {[3,1,4,2,5,1,3,4,2,5,1,4,2,3,5,1,4,2,5,3,1,4,2,5,1,3,4].map((h, i) => (
-                      <div key={i} className="bg-black w-0.5" style={{ height: `${h * 5}px` }} />
-                    ))}
-                  </div>
-                  <p className="text-[10px] text-slate-600 font-bold tracking-widest">
-                    *RESI-{invoice.id || 'INV-3614'}*
-                  </p>
-                  <p className="text-[9px] text-slate-400 pt-1 leading-tight">
-                    Terima kasih telah bertransaksi di TRENS LOGISTIK<br />
-                    Simpan resi ini sebagai bukti pembelian yang sah
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* TAB 3: SURAT JALAN (DO) (Matching Screenshot 3) */}
+            {/* TAB 2: SURAT JALAN (DO) (Matching Screenshot 3) */}
             {activeTab === 'surat_jalan' && (
               <div className="space-y-4 text-slate-800">
                 {/* Header */}

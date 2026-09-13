@@ -14,6 +14,7 @@ import {
   Clock, 
   Printer, 
   LogOut,
+  Lock,
   Bell,
   Search,
   ExternalLink,
@@ -69,11 +70,13 @@ import { UpdateCheckpointModal } from './UpdateCheckpointModal';
 interface DashboardLayoutProps {
   onBackToWebsite: () => void;
   onPrintLabel: (resi: string, item: TrackingItem) => void;
+  onLogout?: () => void;
 }
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   onBackToWebsite,
-  onPrintLabel
+  onPrintLabel,
+  onLogout
 }) => {
   const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
 
@@ -330,11 +333,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               </button>
 
               <button
-                onClick={onBackToWebsite}
-                className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
-                title="Keluar ke Website"
+                onClick={onLogout || onBackToWebsite}
+                className="px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 hover:text-white border border-rose-500/30 rounded-xl transition-colors flex items-center gap-1.5 text-xs font-bold cursor-pointer"
+                title="Kunci & Keluar Sesi Admin"
               >
-                <LogOut className="w-4 h-4" />
+                <Lock className="w-3.5 h-3.5 text-rose-400" />
+                <span className="hidden sm:inline">Keluar Admin</span>
               </button>
             </div>
 

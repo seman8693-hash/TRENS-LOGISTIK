@@ -13,12 +13,22 @@ import { KemitraanModal } from './components/KemitraanModal';
 import { LokasiFooter } from './components/LokasiFooter';
 import { PrintShippingLabelModal } from './components/PrintShippingLabelModal';
 import { DashboardLayout } from './components/dashboard/DashboardLayout';
+import { AdminLoginModal } from './components/dashboard/AdminLoginModal';
+import { isAdminLoggedIn, clearAdminSession } from './utils/adminAuth';
 import { TrackingItem, AppViewMode } from './types';
 
 export default function App() {
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => isAdminLoggedIn());
+  const [showLoginModal, setShowLoginModal] = useState<boolean>(() => {
+    if (typeof window !== 'undefined' && (window.location.pathname === '/admin' || window.location.hash === '#dashboard')) {
+      return !isAdminLoggedIn();
+    }
+    return false;
+  });
+
   const [viewMode, setViewMode] = useState<AppViewMode>(() => {
     if (typeof window !== 'undefined' && (window.location.pathname === '/admin' || window.location.hash === '#dashboard')) {
-      return 'dashboard';
+      return isAdminLoggedIn() ? 'dashboard' : 'website';
     }
     return 'website';
   });
@@ -26,7 +36,13 @@ export default function App() {
   useEffect(() => {
     const handleLocationChange = () => {
       if (window.location.pathname === '/admin' || window.location.hash === '#dashboard') {
-        setViewMode('dashboard');
+        if (isAdminLoggedIn()) {
+          setIsAdminAuthenticated(true);
+          setViewMode('dashboard');
+        } else {
+          setViewMode('website');
+          setShowLoginModal(true);
+        }
       } else {
         setViewMode('website');
       }
@@ -41,6 +57,31 @@ export default function App() {
     };
   }, []);
 
+  // Dynamic SEO Title & Robots Controller for single-page routing & Admin protection
+  useEffect(() => {
+    const robotsMeta = document.querySelector('meta[name="robots"]');
+    if (viewMode === 'dashboard') {
+      document.title = 'Dashboard Admin & Operasional — TRENS-LOGISTIC';
+      if (robotsMeta) robotsMeta.setAttribute('content', 'noindex, nofollow');
+    } else {
+      const hash = window.location.hash;
+      if (hash === '#tracking') {
+        document.title = 'Lacak Resi Pengiriman Real-Time — TRENS-LOGISTIC';
+      } else if (hash === '#kalkulator') {
+        document.title = 'Cek Tarif & Ongkir Volumetrik Cargo — TRENS-LOGISTIC';
+      } else if (hash === '#layanan') {
+        document.title = 'Layanan Ekspedisi Darat, Laut & Udara — TRENS-LOGISTIC';
+      } else if (hash === '#kemitraan') {
+        document.title = 'Program Kemitraan Ekspedisi & Keagenan — TRENS-LOGISTIC';
+      } else if (hash === '#coverage') {
+        document.title = 'Jangkauan Rute Pengiriman se-Nusantara — TRENS-LOGISTIC';
+      } else {
+        document.title = 'TRENS-LOGISTIC — Ekspedisi Darat, Laut & Udara';
+      }
+      if (robotsMeta) robotsMeta.setAttribute('content', 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
+    }
+  }, [viewMode]);
+
   const [showKemitraanModal, setShowKemitraanModal] = useState<boolean>(false);
   const [printLabelData, setPrintLabelData] = useState<{ resi: string; track: TrackingItem } | null>(null);
 
@@ -49,8 +90,29 @@ export default function App() {
   };
 
   const handleOpenDashboard = () => {
+    if (isAdminAuthenticated || isAdminLoggedIn()) {
+      setIsAdminAuthenticated(true);
+      window.history.pushState({}, '', '/admin');
+      setViewMode('dashboard');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      setShowLoginModal(true);
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    setIsAdminAuthenticated(true);
+    setShowLoginModal(false);
     window.history.pushState({}, '', '/admin');
     setViewMode('dashboard');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleLogoutAdmin = () => {
+    clearAdminSession();
+    setIsAdminAuthenticated(false);
+    window.history.pushState({}, '', '/');
+    setViewMode('website');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -65,6 +127,7 @@ export default function App() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
           onPrintLabel={handlePrintLabel}
+          onLogout={handleLogoutAdmin}
         />
 
         {/* Modal: Print Thermal / Shipping Label AWB */}
@@ -159,6 +222,18 @@ export default function App() {
           onClose={() => setPrintLabelData(null)}
         />
       )}
+
+      {/* Modal: Otorisasi Login Password Admin */}
+      <AdminLoginModal
+        isOpen={showLoginModal}
+        onSuccess={handleLoginSuccess}
+        onCancel={() => {
+          setShowLoginModal(false);
+          if (window.location.pathname === '/admin' || window.location.hash === '#dashboard') {
+            window.history.pushState({}, '', '/');
+          }
+        }}
+      />
 
     </div>
   );

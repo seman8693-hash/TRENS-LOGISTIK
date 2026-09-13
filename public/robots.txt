@@ -1,0 +1,88 @@
+# ==============================================================================
+# TRENS-LOGISTIC — Robots & Crawler Control (Advanced SEO & AI Optimization)
+# PT TRENS LOGISTIK EKSPEDISI NUSANTARA
+# ==============================================================================
+
+# Default Crawlers (Google, Bing, Yahoo, DuckDuckGo, Baidu, Yandex, Apple)
+User-agent: *
+Allow: /
+Allow: /#layanan
+Allow: /#kalkulator
+Allow: /#tracking
+Allow: /#coverage
+Allow: /#kemitraan
+Allow: /#faq
+Allow: /#kontak
+Allow: /assets/
+Allow: /favicon.ico
+Disallow: /admin
+Disallow: /#dashboard
+Disallow: /api/
+Disallow: /*?*token=
+Disallow: /*?*secret=
+Crawl-delay: 1
+
+# Googlebot Primary
+User-agent: Googlebot
+User-agent: Googlebot-Image
+User-agent: Googlebot-Mobile
+Allow: /
+Disallow: /admin
+Disallow: /#dashboard
+Disallow: /api/
+
+# Bingbot & MSNbot
+User-agent: Bingbot
+User-agent: msnbot
+Allow: /
+Disallow: /admin
+Disallow: /#dashboard
+Disallow: /api/
+
+# Applebot (Spotlight & Safari Search)
+User-agent: Applebot
+Allow: /
+Disallow: /admin
+Disallow: /#dashboard
+
+# Social Media Previews (WhatsApp, Telegram, Facebook, Twitter, LinkedIn, Discord)
+User-agent: Twitterbot
+User-agent: facebookexternalhit
+User-agent: LinkedInBot
+User-agent: WhatsApp
+User-agent: TelegramBot
+User-agent: Pinterestbot
+User-agent: Discordbot
+Allow: /
+Allow: /assets/
+
+# Next-Gen AI & LLM Search Agents (Allow discovery of public logistics services & rates)
+User-agent: Google-Extended
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: PerplexityBot
+User-agent: Amazonbot
+User-agent: Bytespider
+User-agent: PetalBot
+Allow: /
+Allow: /#layanan
+Allow: /#kalkulator
+Allow: /#tracking
+Allow: /#coverage
+Allow: /#kemitraan
+Allow: /#faq
+Disallow: /admin
+Disallow: /#dashboard
+Disallow: /api/
+
+# Bad Bot Protection & Aggressive Scrapers
+User-agent: SemrushBot
+User-agent: AhrefsBot
+User-agent: DotBot
+User-agent: MJ12bot
+Crawl-delay: 5
+
+# XML Sitemap Directives
+Sitemap: https://trenslogistic.com/sitemap.xml
+Sitemap: https://ais-dev-otqrxy6efrvm3hxojobv7j-491638339024.asia-southeast1.run.app/sitemap.xml

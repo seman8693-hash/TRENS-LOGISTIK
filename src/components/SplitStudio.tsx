@@ -350,7 +350,7 @@ export const SplitStudio: React.FC<SplitStudioProps> = ({ onBackToWebsite }) => 
             <Zap className="w-3 h-3 text-amber-400" /> Sisipkan:
           </span>
           <button
-            onClick={() => handleInsertSnippet(`\n  <!-- Tombol WhatsApp Floating -->\n  <a href="https://wa.me/6285694310979?text=Halo%20TRENS-LOGISTIC" target="_blank" class="fixed bottom-6 right-6 z-50 bg-emerald-600 hover:bg-emerald-700 text-white p-3.5 rounded-full shadow-2xl flex items-center gap-2 font-bold text-sm">\n    <span>💬 Chat WA CS</span>\n  </a>\n`)}
+            onClick={() => handleInsertSnippet(`\n  <!-- Tombol WhatsApp Floating -->\n  <a href="https://wa.me/6281389755106?text=Halo%20TRENS-LOGISTIC" target="_blank" class="fixed bottom-6 right-6 z-50 bg-emerald-600 hover:bg-emerald-700 text-white p-3.5 rounded-full shadow-2xl flex items-center gap-2 font-bold text-sm">\n    <span>💬 Chat WA CS</span>\n  </a>\n`)}
             className="px-2.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[11px] font-semibold shrink-0 transition-colors"
           >
             + Tombol WA

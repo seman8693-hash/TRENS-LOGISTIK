@@ -1,7 +1,7 @@
 import { CityData, ShipmentMode, TrackingItem, OrderRequest, PartnerLead, WebhookConfig } from '../types';
 
-export const WA_NUMBER = '6285694310979';
-export const WA_NUMBER_DISPLAY = '0856-9431-0979';
+export const WA_NUMBER = '6281389755106';
+export const WA_NUMBER_DISPLAY = '0813-8975-5106';
 export const OFFICE_PHONE = '081389755106';
 export const OFFICE_PHONE_DISPLAY = '0813-8975-5106';
 export const MIN_BIAYA = 50000;

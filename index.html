@@ -1,19 +1,227 @@
 <!doctype html>
-<html lang="id">
+<html lang="id" prefix="og: https://ogp.me/ns#">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TRENS-LOGISTIC — Layanan Logistik Darat, Laut &amp; Udara</title>
-    <meta name="description" content="TRENS-LOGISTIC melayani pengiriman barang darat, laut, dan udara ke seluruh Nusantara. Cek tarif, tracking paket, dan pesan pengiriman online." />
-    <meta property="og:title" content="TRENS-LOGISTIC — Layanan Logistik Darat, Laut &amp; Udara" />
-    <meta property="og:description" content="TRENS-LOGISTIC melayani pengiriman barang darat, laut, dan udara ke seluruh Nusantara. Cek tarif, tracking paket, dan pesan pengiriman online." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    
+    <!-- Primary SEO Meta Tags -->
+    <title>TRENS-LOGISTIC — Ekspedisi Darat, Laut &amp; Udara</title>
+    <meta name="title" content="TRENS-LOGISTIC — Ekspedisi Darat, Laut &amp; Udara" />
+    <meta name="description" content="Sistem informasi logistik, kalkulator ongkir volumetrik, pelacakan resi real-time, dan manajemen pengiriman nusantara." />
+    <meta name="keywords" content="trens logistic, ekspedisi nusantara, cek resi ekspedisi, cek ongkir cargo, pengiriman kargo darat, pengiriman kapal roro laut, kargo udara express, sewa truk cdd fuso wingbox, logistik murah indonesia, tarif kirim paket jakarta surabaya makassar medan" />
+    <meta name="author" content="PT TRENS LOGISTIK EKSPEDISI NUSANTARA" />
+    <meta name="publisher" content="TRENS-LOGISTIC" />
+    <meta name="application-name" content="TRENS-LOGISTIC" />
+    <meta name="format-detection" content="telephone=yes, date=no, address=yes, email=no" />
+    <link rel="canonical" href="https://trenslogistic.com/" />
+
+    <!-- Robots & Crawler Directives (Google, Bing, AI LLM Crawlers) -->
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+
+    <!-- Geo Meta Tags for Regional Logistics Targeting (Indonesia) -->
+    <meta name="geo.region" content="ID" />
+    <meta name="geo.placename" content="Indonesia" />
+    <meta name="geo.position" content="-6.2088;106.8456" />
+    <meta name="ICBM" content="-6.2088, 106.8456" />
+
+    <!-- Open Graph / Facebook / WhatsApp Meta Tags -->
+    <meta property="og:locale" content="id_ID" />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://trenslogistic.com/" />
+    <meta property="og:site_name" content="TRENS-LOGISTIC" />
+    <meta property="og:title" content="TRENS-LOGISTIC — Ekspedisi Darat, Laut &amp; Udara" />
+    <meta property="og:description" content="Sistem informasi logistik, kalkulator ongkir volumetrik, pelacakan resi real-time, dan manajemen pengiriman nusantara." />
+    <meta property="og:image" content="https://sc04.alicdn.com/kf/Sd6bcc0f091b4437b89123bed660abc13Z.jpg" />
+    <meta property="og:image:secure_url" content="https://sc04.alicdn.com/kf/Sd6bcc0f091b4437b89123bed660abc13Z.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Armada Pengiriman Ekspedisi TRENS-LOGISTIC Nusantara" />
+
+    <!-- Twitter Cards Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" type="image/jpeg" href="https://sc04.alicdn.com/kf/Sd6bcc0f091b4437b89123bed660abc13Z.jpg">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <meta name="twitter:url" content="https://trenslogistic.com/" />
+    <meta name="twitter:title" content="TRENS-LOGISTIC — Ekspedisi Darat, Laut &amp; Udara" />
+    <meta name="twitter:description" content="Sistem informasi logistik, kalkulator ongkir volumetrik, pelacakan resi real-time, dan manajemen pengiriman nusantara." />
+    <meta name="twitter:image" content="https://sc04.alicdn.com/kf/Sd6bcc0f091b4437b89123bed660abc13Z.jpg" />
+    <meta name="twitter:creator" content="@trenslogistic" />
+
+    <!-- Mobile Theme & Web App Meta -->
+    <meta name="theme-color" content="#0B1B4D" />
+    <meta name="msapplication-TileColor" content="#0B1B4D" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="TRENS-LOGISTIC" />
+
+    <link rel="icon" type="image/jpeg" href="https://sc04.alicdn.com/kf/Sd6bcc0f091b4437b89123bed660abc13Z.jpg" />
+    <link rel="apple-touch-icon" href="https://sc04.alicdn.com/kf/Sd6bcc0f091b4437b89123bed660abc13Z.jpg" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+    <!-- Structured Data (JSON-LD): Organization, LogisticsService, WebSite, FAQPage, BreadcrumbList -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": ["Organization", "LogisticsService"],
+          "@id": "https://trenslogistic.com/#organization",
+          "name": "TRENS-LOGISTIC",
+          "legalName": "PT TRENS LOGISTIK EKSPEDISI NUSANTARA",
+          "alternateName": ["Trens Logistic", "Trens Cargo Nusantara", "Ekspedisi Trens"],
+          "url": "https://trenslogistic.com/",
+          "logo": "https://sc04.alicdn.com/kf/Sd6bcc0f091b4437b89123bed660abc13Z.jpg",
+          "image": "https://sc04.alicdn.com/kf/Sd6bcc0f091b4437b89123bed660abc13Z.jpg",
+          "description": "Layanan ekspedisi dan pengiriman kargo darat, laut, dan udara ke seluruh Indonesia dengan sistem kalkulator ongkir volumetrik dan pelacakan resi real-time.",
+          "telephone": "+62-813-8975-5106",
+          "email": "info@trenslogistic.com",
+          "priceRange": "Rp",
+          "currenciesAccepted": "IDR",
+          "paymentAccepted": "Cash, Bank Transfer, QRIS, Invoicing",
+          "areaServed": {
+            "@type": "Country",
+            "name": "Indonesia"
+          },
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Jakarta",
+            "addressRegion": "DKI Jakarta",
+            "addressCountry": "ID"
+          },
+          "contactPoint": [
+            {
+              "@type": "ContactPoint",
+              "telephone": "+62-813-8975-5106",
+              "contactType": "customer support",
+              "availableLanguage": ["Indonesian", "English"],
+              "contactOption": "TollFree",
+              "areaServed": "ID"
+            }
+          ],
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Layanan Pengiriman Kargo & Logistik",
+            "itemListElement": [
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Pengiriman Kargo Darat (Trucking FTL & LTL)",
+                  "description": "Armada truk CDD, Fuso, dan Wingbox untuk pengiriman jalur darat Pulau Jawa, Bali, dan Sumatera."
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Pengiriman Kargo Laut (Kapal RORO & Kontainer)",
+                  "description": "Pengiriman tarif hemat via kapal cepat RORO dan sewa kontainer 20ft/40ft antarpulau nusantara."
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Pengiriman Kargo Udara (Air Cargo Express)",
+                  "description": "Layanan kilat prioritas via pesawat udara untuk paket mendesak dan dokumen penting ke seluruh bandara Indonesia."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://trenslogistic.com/#website",
+          "url": "https://trenslogistic.com/",
+          "name": "TRENS-LOGISTIC",
+          "description": "Portal Resmi Layanan Pengiriman Logistik Darat, Laut & Udara se-Nusantara",
+          "publisher": {
+            "@id": "https://trenslogistic.com/#organization"
+          },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://trenslogistic.com/#tracking?resi={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://trenslogistic.com/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Bagaimana cara melacak resi pengiriman barang di TRENS-LOGISTIC?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Anda dapat memasukkan nomor resi pada kolom Lacak Pengiriman / Tracking di halaman utama TRENS-LOGISTIC untuk melihat posisi real-time, manifest armada, dan riwayat checkpoint perjalanan paket Anda."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Bagaimana rumus perhitungan berat volumetrik kargo darat, laut, dan udara?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Untuk kargo darat dan laut rumus volume adalah (P x L x T dalam cm) / 4.000 = kg volume, sedangkan kargo udara menggunakan pembagi 6.000 atau (P x L x T dalam cm) / 6.000 = kg volume. Biaya pengiriman dihitung berdasarkan nilai terbesar antara berat timbangan aktual dan berat volumetrik."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Apakah TRENS-LOGISTIC menyediakan layanan pick-up / jemput paket ke alamat?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Ya, kami menyediakan fasilitas penjemputan barang (door-to-door pick up) untuk paket kargo, pengiriman partai besar, sewa truk, maupun pengiriman reguler melalui pemesanan online atau hotline CS."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Wilayah mana saja yang dijangkau oleh TRENS-LOGISTIC?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "TRENS-LOGISTIC menjangkau seluruh pulau di Indonesia mencakup Jawa, Sumatera, Kalimantan, Sulawesi, Bali, Nusa Tenggara, Maluku, hingga Papua dengan jaringan hub dan kantor perwakilan cabang resmi."
+              }
+            }
+          ]
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://trenslogistic.com/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Beranda",
+              "item": "https://trenslogistic.com/"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Layanan Kargo",
+              "item": "https://trenslogistic.com/#layanan"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Kalkulator Ongkir",
+              "item": "https://trenslogistic.com/#kalkulator"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "Lacak Resi",
+              "item": "https://trenslogistic.com/#tracking"
+            }
+          ]
+        }
+      ]
+    }
+    </script>
   </head>
   <body class="bg-slate-50 text-slate-800 antialiased font-sans selection:bg-blue-600 selection:text-white">
     <div id="root"></div>
