@@ -13,19 +13,25 @@ import {
   Eye, 
   Printer, 
   Truck,
-  Plus
+  Plus,
+  Edit3,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
 import { Invoice, OrderRequest, TrackingItem } from '../../types';
 import { rupiah, CITIES } from '../../data/logisticData';
 import { getStoredPricelistRoutes, DEFAULT_PRICELIST_ROUTES } from '../../data/pricelistData';
 import { InvoiceDocumentModal } from './InvoiceDocumentModal';
+import { EditInvoiceModal } from './EditInvoiceModal';
 import {
   getStoredInvoices,
   saveStoredInvoices,
   upsertInvoice,
+  deleteStoredInvoice,
   subscribeToInvoiceUpdates,
   DEFAULT_TRENS_INVOICES
 } from '../../utils/invoiceStore';
+import { logInvoiceCreated, logInvoiceUpdated, logInvoiceDeleted } from '../../utils/auditLogger';
 
 interface DashboardInvoicesProps {
   tracks: Record<string, TrackingItem>;
@@ -48,6 +54,8 @@ export const DashboardInvoices: React.FC<DashboardInvoicesProps> = ({ tracks, or
 
   const [search, setSearch] = useState('');
   const [selectedInvoiceForModal, setSelectedInvoiceForModal] = useState<Invoice | null>(null);
+  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
+  const [deletingInvoice, setDeletingInvoice] = useState<Invoice | null>(null);
 
   // Form states
   const [customerName, setCustomerName] = useState('');
@@ -226,6 +234,7 @@ export const DashboardInvoices: React.FC<DashboardInvoicesProps> = ({ tracks, or
 
     upsertInvoice(newInv);
     setInvoices((current) => [newInv, ...current]);
+    logInvoiceCreated(invoiceId, newInv.resi, grandTotal);
     showNotification(`Invoice ${invoiceId} berhasil diterbitkan dan disinkronkan ke seluruh sistem!`);
 
     // Reset Form
@@ -236,6 +245,24 @@ export const DashboardInvoices: React.FC<DashboardInvoicesProps> = ({ tracks, or
     setAmount(0);
     setBiayaPacking(0);
     setAsuransi(0);
+  };
+
+  const handleSaveEditInvoice = (updated: Invoice) => {
+    upsertInvoice(updated);
+    setInvoices((current) => current.map((inv) => inv.id === updated.id ? updated : inv));
+    logInvoiceUpdated(updated.id, updated.customerName, updated.total);
+    showNotification(`Faktur #${updated.id} berhasil diperbarui & disimpan!`);
+    setEditingInvoice(null);
+  };
+
+  const handleConfirmDeleteInvoice = () => {
+    if (!deletingInvoice) return;
+    const target = deletingInvoice;
+    const updated = deleteStoredInvoice(target.id);
+    setInvoices(updated);
+    logInvoiceDeleted(target.id);
+    showNotification(`Faktur #${target.id} berhasil dihapus dari sistem.`);
+    setDeletingInvoice(null);
   };
 
   const updateStatus = (id: string, status: Invoice['status']) => {
@@ -649,6 +676,16 @@ export const DashboardInvoices: React.FC<DashboardInvoicesProps> = ({ tracks, or
                     <div className="flex items-center justify-center gap-1.5">
                       <button
                         type="button"
+                        onClick={() => setEditingInvoice(invoice)}
+                        className="px-2.5 py-1.5 bg-blue-700 hover:bg-blue-800 text-white font-extrabold rounded-xl text-[10px] flex items-center gap-1 shadow-2xs transition-transform active:scale-95 cursor-pointer"
+                        title="Edit & Perbarui Rincian Invoice"
+                      >
+                        <Edit3 className="w-3 h-3" />
+                        <span>Edit</span>
+                      </button>
+
+                      <button
+                        type="button"
                         onClick={() => setSelectedInvoiceForModal(invoice)}
                         className="px-2.5 py-1.5 bg-[#0B1B4D] hover:bg-blue-900 text-white font-extrabold rounded-xl text-[10px] flex items-center gap-1 shadow-2xs transition-transform active:scale-95 cursor-pointer"
                         title="Buka Resi Pengiriman & Surat Jalan (DO)"
@@ -664,6 +701,15 @@ export const DashboardInvoices: React.FC<DashboardInvoicesProps> = ({ tracks, or
                         title="Kirim Ringkasan Invoice via WhatsApp"
                       >
                         <Send className="w-3 h-3" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setDeletingInvoice(invoice)}
+                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
+                        title="Hapus Invoice / Dokumen Tagihan"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </td>
@@ -682,6 +728,16 @@ export const DashboardInvoices: React.FC<DashboardInvoicesProps> = ({ tracks, or
 
       </div>
 
+      {/* MODAL: EDIT INVOICE & AUTO HARGA */}
+      {editingInvoice && (
+        <EditInvoiceModal
+          isOpen={true}
+          invoice={editingInvoice}
+          onClose={() => setEditingInvoice(null)}
+          onSave={handleSaveEditInvoice}
+        />
+      )}
+
       {/* MODAL: RESI PENGIRIMAN & SURAT JALAN DO */}
       {selectedInvoiceForModal && (
         <InvoiceDocumentModal
@@ -690,6 +746,40 @@ export const DashboardInvoices: React.FC<DashboardInvoicesProps> = ({ tracks, or
           onClose={() => setSelectedInvoiceForModal(null)}
           onSaveInvoice={handleSaveInvoiceModal}
         />
+      )}
+
+      {/* MODAL: KONFIRMASI HAPUS INVOICE */}
+      {deletingInvoice && (
+        <div className="fixed inset-0 z-70 overflow-y-auto bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <div className="text-center">
+              <h4 className="text-base font-black text-slate-900">Hapus Invoice #{deletingInvoice.id}?</h4>
+              <p className="text-xs text-slate-500 mt-1">
+                Apakah Anda yakin ingin menghapus faktur tagihan atas nama <span className="font-bold text-slate-800">{deletingInvoice.customerName}</span> (Total: {rupiah(deletingInvoice.total)})? Tindakan ini tidak dapat dibatalkan.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeletingInvoice(null)}
+                className="w-1/2 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteInvoice}
+                className="w-1/2 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-black shadow-md transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Ya, Hapus Faktur</span>
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

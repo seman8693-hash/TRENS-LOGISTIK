@@ -15,6 +15,7 @@ import { PrintShippingLabelModal } from './components/PrintShippingLabelModal';
 import { DashboardLayout } from './components/dashboard/DashboardLayout';
 import { AdminLoginModal } from './components/dashboard/AdminLoginModal';
 import { isAdminLoggedIn, clearAdminSession } from './utils/adminAuth';
+import { logAdminLogin, logAdminLogout } from './utils/auditLogger';
 import { TrackingItem, AppViewMode } from './types';
 
 export default function App() {
@@ -106,9 +107,11 @@ export default function App() {
     window.history.pushState({}, '', '/admin');
     setViewMode('dashboard');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    logAdminLogin('Master Administrator (admin)');
   };
 
   const handleLogoutAdmin = () => {
+    logAdminLogout('Master Administrator (admin)');
     clearAdminSession();
     setIsAdminAuthenticated(false);
     window.history.pushState({}, '', '/');

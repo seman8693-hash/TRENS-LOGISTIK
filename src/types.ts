@@ -159,7 +159,24 @@ export interface PricelistRouteItem {
   leadTime: string;
 }
 
-export type DashboardTab = 'overview' | 'shipments' | 'orders' | 'partners' | 'rates' | 'integration' | 'admin' | 'invoices';
+export type DashboardTab = 'overview' | 'shipments' | 'orders' | 'partners' | 'rates' | 'integration' | 'admin' | 'invoices' | 'logs';
+
+export type LogCategory = 'RESI' | 'ORDER' | 'INVOICE' | 'PARTNER' | 'AUTH' | 'SYSTEM' | 'OPERATIONAL';
+
+export type LogLevel = 'info' | 'success' | 'warning' | 'danger';
+
+export interface ActivityLog {
+  id: string;
+  timestamp: string; // ISO string format
+  category: LogCategory;
+  action: string;
+  actor: string;
+  title: string;
+  description: string;
+  targetId?: string; // e.g. No. Resi, Order ID, etc.
+  details?: Record<string, any>;
+  level: LogLevel;
+}
 
 export interface WebhookConfig {
   url: string;

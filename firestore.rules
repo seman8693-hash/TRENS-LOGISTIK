@@ -17,6 +17,16 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // Activity and system logs audit trail
+    match /activity_logs/{logId} {
+      allow read, write: if true;
+    }
+
+    // Invoices and delivery order documents
+    match /invoices/{invoiceId} {
+      allow read, write: if true;
+    }
+
     // Connection test probe
     match /test/{testId} {
       allow read, write: if true;

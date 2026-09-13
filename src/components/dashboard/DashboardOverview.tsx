@@ -12,7 +12,8 @@ import {
   Webhook, 
   Plus, 
   Printer, 
-  AlertCircle
+  AlertCircle,
+  History
 } from 'lucide-react';
 import { TrackingItem, OrderRequest, PartnerLead, DashboardTab } from '../../types';
 import { rupiah } from '../../data/logisticData';
@@ -80,14 +81,21 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={onOpenCreateShipment}
-              className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-sm transition-all hover:scale-102"
+              className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 shadow-sm transition-all hover:scale-102 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Buat Resi Baru</span>
             </button>
             <button
+              onClick={() => onNavigateTab('logs')}
+              className="bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/20 px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer"
+            >
+              <History className="w-4 h-4 text-emerald-300" />
+              <span>Histori & Log</span>
+            </button>
+            <button
               onClick={() => onNavigateTab('integration')}
-              className="bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/20 px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-all"
+              className="bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/20 px-4 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer"
             >
               <Webhook className="w-4 h-4 text-amber-300" />
               <span>Portal Integrasi API</span>

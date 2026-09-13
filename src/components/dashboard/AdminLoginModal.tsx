@@ -18,6 +18,7 @@ import {
   setStoredAdminPassword,
   getStoredAdminPassword 
 } from '../../utils/adminAuth';
+import { logAdminPasswordChanged } from '../../utils/auditLogger';
 
 interface AdminLoginModalProps {
   isOpen: boolean;
@@ -96,6 +97,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
 
     const success = setStoredAdminPassword(newPassword.trim());
     if (success) {
+      logAdminPasswordChanged();
       setChangeSuccess('Kata sandi admin berhasil diperbarui! Silakan masuk dengan kata sandi baru Anda.');
       setOldPassword('');
       setNewPassword('');

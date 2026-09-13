@@ -57,6 +57,50 @@
         "tanggal": { "type": "string" }
       },
       "required": ["id", "nama", "whatsapp", "kota", "kategori"]
+    },
+    "ActivityLog": {
+      "description": "Operational and security activity log records",
+      "properties": {
+        "id": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "category": { "type": "string" },
+        "action": { "type": "string" },
+        "actor": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "targetId": { "type": "string" },
+        "level": { "type": "string" }
+      },
+      "required": ["id", "timestamp", "category", "action", "title", "level"]
+    },
+    "Invoice": {
+      "description": "Commercial freight invoices and delivery orders",
+      "properties": {
+        "id": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "resi": { "type": "string" },
+        "amount": { "type": "number" },
+        "tax": { "type": "number" },
+        "total": { "type": "number" },
+        "issueDate": { "type": "string" },
+        "dueDate": { "type": "string" },
+        "status": { "type": "string" },
+        "senderName": { "type": "string" },
+        "senderAddress": { "type": "string" },
+        "senderCity": { "type": "string" },
+        "recipientAddress": { "type": "string" },
+        "recipientCity": { "type": "string" },
+        "itemDescription": { "type": "string" },
+        "colly": { "type": "number" },
+        "weight": { "type": "number" },
+        "ongkirCargo": { "type": "number" },
+        "biayaPacking": { "type": "number" },
+        "asuransi": { "type": "number" },
+        "ppnPercent": { "type": "number" },
+        "deliveryOrderNo": { "type": "string" }
+      },
+      "required": ["id", "customerName", "total", "status"]
     }
   },
   "firestore": {
@@ -71,6 +115,14 @@
     "/partners/{partnerId}": {
       "schema": "PartnerLead",
       "description": "Partnership applicant leads"
+    },
+    "/activity_logs/{logId}": {
+      "schema": "ActivityLog",
+      "description": "Audit trail and activity log entries"
+    },
+    "/invoices/{invoiceId}": {
+      "schema": "Invoice",
+      "description": "Invoices and delivery order documents"
     }
   }
 }

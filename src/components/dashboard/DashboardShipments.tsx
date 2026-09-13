@@ -25,7 +25,8 @@ import {
   CheckCircle2,
   Tag,
   ReceiptText,
-  FileText
+  FileText,
+  AlertTriangle
 } from 'lucide-react';
 import { TrackingItem, ShipmentStatus, ShipmentMode, Invoice } from '../../types';
 import { rupiah, DEFAULT_RATES } from '../../data/logisticData';
@@ -64,6 +65,7 @@ export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [excelSuccessMsg, setExcelSuccessMsg] = useState<string | null>(null);
   const [selectedInvoiceForModal, setSelectedInvoiceForModal] = useState<Invoice | null>(null);
+  const [deletingResiTarget, setDeletingResiTarget] = useState<string | null>(null);
 
   const handleOpenShipmentInvoice = (resi: string, item: TrackingItem) => {
     const inv = createInvoiceFromTracking(resi, item);
@@ -422,36 +424,36 @@ export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
                         <td className="py-3.5 px-4 text-center whitespace-nowrap">
                           <div className="flex items-center justify-center gap-1">
                             <button
+                              type="button"
                               onClick={() => handleOpenShipmentInvoice(resi, t)}
-                              className="px-2 py-1 bg-[#0B1B4D] hover:bg-blue-950 text-white font-bold rounded-lg transition-colors text-[11px] flex items-center gap-1 shadow-2xs"
+                              className="px-2 py-1 bg-[#0B1B4D] hover:bg-blue-950 text-white font-bold rounded-lg transition-colors text-[11px] flex items-center gap-1 shadow-2xs cursor-pointer active:scale-95"
                               title="Buka Resi Pengiriman & Surat Jalan (DO)"
                             >
                               <FileText className="w-3 h-3 text-amber-400" />
                               <span>Resi / DO</span>
                             </button>
                             <button
+                              type="button"
                               onClick={() => onSelectUpdateResi(resi)}
-                              className="px-2.5 py-1 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-lg transition-colors text-[11px] flex items-center gap-1"
-                              title="Update Checkpoint & Status"
+                              className="px-2.5 py-1 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-lg transition-colors text-[11px] flex items-center gap-1 cursor-pointer active:scale-95"
+                              title="Edit Data Resi, Rute, Kargo & Checkpoint"
                             >
                               <Edit3 className="w-3 h-3" />
-                              <span>Update</span>
+                              <span>Edit</span>
                             </button>
                             <button
+                              type="button"
                               onClick={() => onPrintLabel(resi, t)}
-                              className="p-1.5 text-slate-600 hover:text-blue-700 hover:bg-slate-100 rounded-lg transition-colors"
+                              className="p-1.5 text-slate-600 hover:text-blue-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                               title="Cetak Label Thermal AWB"
                             >
                               <Printer className="w-3.5 h-3.5" />
                             </button>
                             <button
-                              onClick={() => {
-                                if (confirm(`Apakah Anda yakin ingin menghapus resi ${resi}?`)) {
-                                  onDeleteResi(resi);
-                                }
-                              }}
-                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                              title="Hapus Resi"
+                              type="button"
+                              onClick={() => setDeletingResiTarget(resi)}
+                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                              title="Hapus Resi Ini"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -646,6 +648,47 @@ export const DashboardShipments: React.FC<DashboardShipmentsProps> = ({
           onClose={() => setSelectedInvoiceForModal(null)}
           onSaveInvoice={handleSaveShipmentInvoice}
         />
+      )}
+
+      {/* Modal: Konfirmasi Hapus Resi */}
+      {deletingResiTarget && (
+        <div className="fixed inset-0 z-70 overflow-y-auto bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+            <div className="text-center">
+              <h4 className="text-base font-black text-slate-900">Hapus Resi Pengiriman {deletingResiTarget}?</h4>
+              <p className="text-xs text-slate-500 mt-1">
+                Apakah Anda yakin ingin menghapus data resi <span className="font-mono font-bold text-blue-900">{deletingResiTarget}</span>
+                {tracks[deletingResiTarget]?.nama ? ` (${tracks[deletingResiTarget]?.nama} - ${tracks[deletingResiTarget]?.rute})` : ''}?
+                Data yang dihapus akan dihapus secara permanen dari database sistem logistik.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeletingResiTarget(null)}
+                className="w-1/2 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (deletingResiTarget) {
+                    onDeleteResi(deletingResiTarget);
+                    setDeletingResiTarget(null);
+                  }
+                }}
+                className="w-1/2 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-black shadow-md transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Ya, Hapus Resi</span>
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
     </div>

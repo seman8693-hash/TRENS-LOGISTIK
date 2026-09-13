@@ -13,7 +13,7 @@ import {
   limit
 } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { TrackingItem, OrderRequest, PartnerLead } from './types';
+import { TrackingItem, OrderRequest, PartnerLead, Invoice } from './types';
 import { 
   DUMMY_RESI_LIST, 
   DUMMY_ORDER_LIST, 
@@ -192,6 +192,68 @@ export async function deletePartnerFromDb(partnerId: string): Promise<boolean> {
     }
     console.warn('Firestore delete partner notice:', err);
     return false;
+  }
+}
+
+/**
+ * Save or update invoice in Firestore
+ */
+export async function saveInvoiceToDb(invoice: Invoice): Promise<boolean> {
+  const docPath = `invoices/${invoice.id}`;
+  try {
+    const docRef = doc(db, 'invoices', invoice.id);
+    await setDoc(docRef, invoice, { merge: true });
+    return true;
+  } catch (err: unknown) {
+    const code = (err as { code?: string })?.code;
+    if (code === 'permission-denied') {
+      handleFirestoreError(err, OperationType.WRITE, docPath);
+    }
+    console.error('Firestore save invoice error:', err);
+    return false;
+  }
+}
+
+/**
+ * Delete an invoice from Firestore
+ */
+export async function deleteInvoiceFromDb(invoiceId: string): Promise<boolean> {
+  const docPath = `invoices/${invoiceId}`;
+  try {
+    const docRef = doc(db, 'invoices', invoiceId);
+    await deleteDoc(docRef);
+    return true;
+  } catch (err: unknown) {
+    const code = (err as { code?: string })?.code;
+    if (code === 'permission-denied') {
+      handleFirestoreError(err, OperationType.DELETE, docPath);
+    }
+    console.warn('Firestore delete invoice notice:', err);
+    return false;
+  }
+}
+
+/**
+ * Listen to invoices in real-time
+ */
+export function subscribeInvoices(callback: (invoices: Invoice[]) => void) {
+  try {
+    const colRef = collection(db, 'invoices');
+    return onSnapshot(colRef, (snapshot) => {
+      const list: Invoice[] = [];
+      snapshot.forEach((docSnap) => {
+        list.push(docSnap.data() as Invoice);
+      });
+      callback(list);
+    }, (err) => {
+      if (err.code === 'permission-denied') {
+        handleFirestoreError(err, OperationType.LIST, 'invoices');
+      }
+      console.warn('Firestore invoices subscription notification:', err);
+    });
+  } catch (err) {
+    console.warn('Could not subscribe to invoices:', err);
+    return () => {};
   }
 }
 

@@ -1,4 +1,5 @@
 import { Invoice, TrackingItem, OrderRequest } from '../types';
+import { saveInvoiceToDb, deleteInvoiceFromDb, subscribeInvoices } from '../firebase';
 
 export const INVOICE_STORAGE_KEY = 'trens-logistic-invoices-v3';
 
@@ -89,7 +90,22 @@ export const upsertInvoice = (invoice: Invoice): Invoice => {
   }
 
   saveStoredInvoices(updated);
+  // Persist to Firestore asynchronously
+  saveInvoiceToDb(clean).catch((err) => {
+    console.warn('Notice saving invoice to firestore:', err);
+  });
   return clean;
+};
+
+export const deleteStoredInvoice = (id: string): Invoice[] => {
+  const current = getStoredInvoices();
+  const updated = current.filter((inv) => inv.id !== id);
+  saveStoredInvoices(updated);
+  // Delete from Firestore asynchronously
+  deleteInvoiceFromDb(id).catch((err) => {
+    console.warn('Notice deleting invoice from firestore:', err);
+  });
+  return updated;
 };
 
 export const createInvoiceFromTracking = (resi: string, item: TrackingItem): Invoice => {
@@ -219,8 +235,26 @@ export const subscribeToInvoiceUpdates = (callback: (invoices: Invoice[]) => voi
   window.addEventListener('trens_invoice_updated', handleCustom);
   window.addEventListener('storage', handleStorage);
 
+  // Firestore real-time listener
+  const unsubscribeFirestore = subscribeInvoices((remoteInvoices) => {
+    if (remoteInvoices && remoteInvoices.length > 0) {
+      const local = getStoredInvoices();
+      const map = new Map<string, Invoice>();
+      // Put default/local first
+      local.forEach((inv) => map.set(inv.id, inv));
+      // Remote overrides or adds
+      remoteInvoices.forEach((inv) => map.set(inv.id, sanitizeInvoice(inv)));
+      const merged = Array.from(map.values());
+      try {
+        localStorage.setItem(INVOICE_STORAGE_KEY, JSON.stringify(merged));
+      } catch {}
+      callback(merged);
+    }
+  });
+
   return () => {
     window.removeEventListener('trens_invoice_updated', handleCustom);
     window.removeEventListener('storage', handleStorage);
+    if (unsubscribeFirestore) unsubscribeFirestore();
   };
 };

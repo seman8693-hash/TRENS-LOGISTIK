@@ -22,6 +22,7 @@ import {
   setStoredAdminPassword, 
   DEFAULT_ADMIN_PASSWORD 
 } from '../../utils/adminAuth';
+import { logAdminPasswordChanged } from '../../utils/auditLogger';
 
 interface DashboardAdminProps {
   tracks: Record<string, TrackingItem>;
@@ -59,6 +60,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
   const [newPasswordInput, setNewPasswordInput] = useState('');
   const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
   const [showPasswordText, setShowPasswordText] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
   const [passwordFeedback, setPasswordFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const handleChangePassword = (e: React.FormEvent) => {
@@ -86,6 +88,7 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
       setOldPasswordInput('');
       setNewPasswordInput('');
       setConfirmPasswordInput('');
+      logAdminPasswordChanged('Master Administrator (Ganti Kata Sandi)');
       setPasswordFeedback({ type: 'success', message: 'Kata sandi admin berhasil diperbarui!' });
       setTimeout(() => setPasswordFeedback(null), 5000);
     } else {
@@ -93,16 +96,16 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
     }
   };
 
-  const handleResetDefaultPassword = () => {
-    if (window.confirm('Reset kata sandi admin ke bawaan (admin123)?')) {
-      setStoredAdminPassword(DEFAULT_ADMIN_PASSWORD);
-      setCurrentAdminPassword(DEFAULT_ADMIN_PASSWORD);
-      setOldPasswordInput('');
-      setNewPasswordInput('');
-      setConfirmPasswordInput('');
-      setPasswordFeedback({ type: 'success', message: 'Kata sandi telah direset ke bawaan (admin123).' });
-      setTimeout(() => setPasswordFeedback(null), 5000);
-    }
+  const handleConfirmResetPassword = () => {
+    setStoredAdminPassword(DEFAULT_ADMIN_PASSWORD);
+    setCurrentAdminPassword(DEFAULT_ADMIN_PASSWORD);
+    setOldPasswordInput('');
+    setNewPasswordInput('');
+    setConfirmPasswordInput('');
+    logAdminPasswordChanged('Master Administrator (Hapus Sandi Kustom / Reset ke admin123)');
+    setShowResetModal(false);
+    setPasswordFeedback({ type: 'success', message: 'Kata sandi kustom berhasil dihapus & direset ke bawaan (admin123).' });
+    setTimeout(() => setPasswordFeedback(null), 5000);
   };
 
   const totalShipments = Object.keys(tracks).length;
@@ -318,19 +321,17 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Terproteksi Sandi</span>
+                <span>{currentAdminPassword === DEFAULT_ADMIN_PASSWORD ? 'Sandi Default (admin123)' : 'Sandi Kustom Aktif'}</span>
               </span>
-              {currentAdminPassword !== DEFAULT_ADMIN_PASSWORD && (
-                <button
-                  type="button"
-                  onClick={handleResetDefaultPassword}
-                  className="text-[11px] font-semibold text-slate-500 hover:text-slate-800 px-2 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center gap-1 transition-colors cursor-pointer"
-                  title="Kembalikan ke sandi bawaan admin123"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                  <span>Reset Default</span>
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => setShowResetModal(true)}
+                className="text-[11px] font-semibold text-slate-600 hover:text-red-700 px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-red-50 hover:border-red-200 flex items-center gap-1 transition-colors cursor-pointer"
+                title="Hapus sandi kustom & kembalikan ke bawaan (admin123)"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Hapus / Reset Sandi</span>
+              </button>
             </div>
           </div>
 
@@ -413,6 +414,40 @@ export const DashboardAdmin: React.FC<DashboardAdminProps> = ({
           </form>
         </div>
       </div>
+
+      {/* Modal: Konfirmasi Reset Kata Sandi */}
+      {showResetModal && (
+        <div className="fixed inset-0 z-70 overflow-y-auto bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
+              <RotateCcw className="w-6 h-6" />
+            </div>
+            <div className="text-center">
+              <h4 className="text-base font-black text-slate-900">Reset Kata Sandi Admin?</h4>
+              <p className="text-xs text-slate-500 mt-1">
+                Apakah Anda ingin menghapus kata sandi kustom dan mengembalikan kata sandi administrator ke bawaan pabrik: <code className="bg-slate-100 text-blue-900 font-mono font-bold px-1.5 py-0.5 rounded">admin123</code>?
+              </p>
+            </div>
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowResetModal(false)}
+                className="w-1/2 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmResetPassword}
+                className="w-1/2 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black shadow-md transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Ya, Reset ke Default</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -19,7 +19,8 @@ import {
   Search,
   ExternalLink,
   BriefcaseBusiness,
-  ReceiptText
+  ReceiptText,
+  History
 } from 'lucide-react';
 import { 
   DashboardTab, 
@@ -28,7 +29,8 @@ import {
   PartnerLead, 
   ShipmentMode, 
   WebhookConfig,
-  ShipmentStatus
+  ShipmentStatus,
+  ActivityLog
 } from '../../types';
 import { 
   getStoredTracks, 
@@ -55,6 +57,17 @@ import {
   deleteShipmentFromDb,
   deleteOrderFromDb
 } from '../../firebase';
+import {
+  subscribeActivityLogs,
+  getCachedActivityLogs,
+  logResiCreated,
+  logCheckpointUpdated,
+  logResiUpdated,
+  logResiDeleted,
+  logOrderStatusUpdated,
+  logPartnerStatusUpdated,
+  logExcelImported
+} from '../../utils/auditLogger';
 
 import { DashboardOverview } from './DashboardOverview';
 import { DashboardShipments } from './DashboardShipments';
@@ -64,6 +77,7 @@ import { DashboardRates } from './DashboardRates';
 import { DashboardIntegration } from './DashboardIntegration';
 import { DashboardAdmin } from './DashboardAdmin';
 import { DashboardInvoices } from './DashboardInvoices';
+import { DashboardLogs } from './DashboardLogs';
 import { CreateShipmentModal } from './CreateShipmentModal';
 import { UpdateCheckpointModal } from './UpdateCheckpointModal';
 
@@ -86,6 +100,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const [partners, setPartners] = useState<PartnerLead[]>([]);
   const [rates, setRates] = useState<Record<ShipmentMode, Record<string, number>>>(() => getStoredRates());
   const [webhookConfig, setWebhookConfig] = useState<WebhookConfig>(() => getStoredWebhook());
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>(() => getCachedActivityLogs());
 
   // Real-time synchronization with Cloud Firestore
   useEffect(() => {
@@ -125,10 +140,15 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       }
     });
 
+    const unsubLogs = subscribeActivityLogs((liveLogs) => {
+      setActivityLogs(liveLogs);
+    });
+
     return () => {
       unsubShipments();
       unsubOrders();
       unsubPartners();
+      unsubLogs();
     };
   }, []);
 
@@ -167,6 +187,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     const updated = { [resi]: item, ...tracks };
     updateTracksState(updated);
     saveShipmentToDb(resi, item).catch(err => console.warn('Firestore save shipment error:', err));
+    logResiCreated(resi, item.rute, item.moda);
   };
 
   const handleBatchSaveShipments = (newShipments: Record<string, TrackingItem>) => {
@@ -175,12 +196,16 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     Object.entries(newShipments).forEach(([resi, item]) => {
       saveShipmentToDb(resi, item).catch(err => console.warn('Firestore batch save error:', err));
     });
+    logExcelImported(Object.keys(newShipments).length);
   };
 
   const handleUpdateShipment = (resi: string, updatedItem: TrackingItem) => {
     const updated = { ...tracks, [resi]: updatedItem };
     updateTracksState(updated);
     saveShipmentToDb(resi, updatedItem).catch(err => console.warn('Firestore update shipment error:', err));
+    logResiUpdated(resi, updatedItem.rute);
+    const lastCheckpoint = updatedItem.history[updatedItem.history.length - 1]?.k || updatedItem.history[0]?.k || 'Pembaruan data resi';
+    logCheckpointUpdated(resi, lastCheckpoint, updatedItem.status);
   };
 
   const handleDeleteShipment = (resi: string) => {
@@ -188,6 +213,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     delete copy[resi];
     updateTracksState(copy);
     deleteShipmentFromDb(resi).catch(err => console.warn('Firestore delete shipment notice:', err));
+    logResiDeleted(resi);
   };
 
   const handleUpdateOrderStatus = (id: string, status: OrderRequest['status']) => {
@@ -198,6 +224,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     }
     const updated = orders.map((o) => (o.id === id ? { ...o, status } : o));
     updateOrdersState(updated);
+    logOrderStatusUpdated(id, status);
   };
 
   const handleDeleteOrder = (id: string) => {
@@ -257,6 +284,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     }
     const updated = partners.map((p) => (p.id === id ? { ...p, status } : p));
     updatePartnersState(updated);
+    logPartnerStatusUpdated(id, target?.nama || 'Mitra', status);
   };
 
   const handleDeletePartner = (id: string) => {
@@ -350,6 +378,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-1 sm:space-x-2 py-1.5">
             {[
               { id: 'overview', label: 'Ringkasan', icon: LayoutDashboard },
+              { 
+                id: 'logs', 
+                label: 'Histori & Log', 
+                icon: History, 
+                badge: activityLogs.length > 0 ? activityLogs.length : undefined 
+              },
               { id: 'admin', label: 'Admin', icon: BriefcaseBusiness },
               { id: 'invoices', label: 'Invoice', icon: ReceiptText },
               { id: 'shipments', label: `Pemuatan Resi (${Object.keys(tracks).length})`, icon: Package },
@@ -408,6 +442,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             onSelectUpdateResi={(resi) => setUpdateResiTarget(resi)}
             onPrintLabel={onPrintLabel}
           />
+        )}
+
+        {activeTab === 'logs' && (
+          <DashboardLogs logs={activityLogs} />
         )}
 
         {activeTab === 'admin' && (
