@@ -72,8 +72,6 @@ export const DashboardRates: React.FC<DashboardRatesProps> = ({
   const [calcTinggi, setCalcTinggi] = useState<number>(25);
   const [calcTarifKg, setCalcTarifKg] = useState<number>(12000);
   
-  const [isItemIncluded, setIsItemIncluded] = useState<boolean>(true); // 'Pembelian + Kirim'
-  const [calcHargaBarang, setCalcHargaBarang] = useState<number>(1500000);
   const [calcBiayaPacking, setCalcBiayaPacking] = useState<number>(25000);
   const [calcAsuransi, setCalcAsuransi] = useState<number>(5000);
   const [calcPpnPercent, setCalcPpnPercent] = useState<number>(12);
@@ -153,7 +151,7 @@ export const DashboardRates: React.FC<DashboardRatesProps> = ({
   const beratCharge = Math.max(calcBeratAktual, Math.round(beratVolumetrik * 10) / 10);
   const totalOngkir = Math.round(beratCharge * calcTarifKg);
   
-  const baseSubtotal = (isItemIncluded ? calcHargaBarang : 0) + totalOngkir + calcBiayaPacking + calcAsuransi;
+  const baseSubtotal = totalOngkir + calcBiayaPacking + calcAsuransi;
   const nominalPpn = Math.round(baseSubtotal * (calcPpnPercent / 100));
   const nominalPph = Math.round(baseSubtotal * (calcPphPercent / 100));
   const grandTotal = baseSubtotal + nominalPpn - nominalPph;
@@ -490,33 +488,6 @@ export const DashboardRates: React.FC<DashboardRatesProps> = ({
 
         {/* Inputs Grid - Row 2 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 mb-5">
-          {/* Harga Barang (Rp) with Toggle */}
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-[10px] font-black uppercase text-blue-200">
-                HARGA BARANG (RP)
-              </label>
-              <button
-                type="button"
-                onClick={() => setIsItemIncluded(!isItemIncluded)}
-                className="text-[10px] font-bold text-amber-300 hover:text-amber-200 flex items-center gap-1 cursor-pointer"
-              >
-                <span>{isItemIncluded ? '🛒 Pembelian + Kirim' : 'Hanya Ongkir'}</span>
-              </button>
-            </div>
-            <input
-              type="number"
-              step="10000"
-              min="0"
-              disabled={!isItemIncluded}
-              value={isItemIncluded ? calcHargaBarang : 0}
-              onChange={(e) => setCalcHargaBarang(Math.max(0, parseInt(e.target.value) || 0))}
-              className={`w-full bg-[#051138] border rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-hidden ${
-                isItemIncluded ? 'border-amber-400/80' : 'border-blue-900 opacity-50'
-              }`}
-            />
-          </div>
-
           {/* Biaya Packing */}
           <div>
             <label className="block text-[10px] font-black uppercase text-blue-200 mb-1">

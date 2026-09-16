@@ -411,3 +411,182 @@ export const logExcelImported = (count: number, actor: string = 'Admin Operasion
     level: 'success'
   });
 };
+
+/* ==========================================================================
+ * Master Pelanggan
+ * ========================================================================== */
+export const logCustomerCreated = (
+  customerName: string,
+  kota: string,
+  segmen: string,
+  actor: string = 'Admin Operasional'
+) => {
+  return logActivity({
+    category: 'OPERATIONAL',
+    action: 'CREATE_CUSTOMER',
+    actor,
+    title: 'Pelanggan Baru Ditambahkan',
+    description: `Data pelanggan ${customerName} (${segmen}) wilayah ${kota} berhasil disimpan ke master pelanggan.`,
+    targetId: customerName,
+    details: { kota, segmen },
+    level: 'success'
+  });
+};
+
+export const logCustomerUpdated = (
+  customerName: string,
+  kota: string,
+  actor: string = 'Admin Operasional'
+) => {
+  return logActivity({
+    category: 'OPERATIONAL',
+    action: 'UPDATE_CUSTOMER',
+    actor,
+    title: 'Data Pelanggan Diperbarui',
+    description: `Profil pelanggan ${customerName} (${kota}) berhasil diperbarui.`,
+    targetId: customerName,
+    level: 'info'
+  });
+};
+
+export const logCustomerDeleted = (customerName: string, actor: string = 'Admin Operasional') => {
+  return logActivity({
+    category: 'OPERATIONAL',
+    action: 'DELETE_CUSTOMER',
+    actor,
+    title: 'Pelanggan Dihapus',
+    description: `Data pelanggan ${customerName} dihapus dari master pelanggan.`,
+    targetId: customerName,
+    level: 'danger'
+  });
+};
+
+/* ==========================================================================
+ * Pusat Chat / Customer Service
+ * ========================================================================== */
+export const logChatThreadCreated = (
+  threadId: string,
+  customerName: string,
+  subject: string,
+  actor: string = 'Customer Service'
+) => {
+  return logActivity({
+    category: 'OPERATIONAL',
+    action: 'CREATE_CHAT_THREAD',
+    actor,
+    title: 'Percakapan CS Baru Dibuka',
+    description: `Thread ${threadId} untuk ${customerName} (${subject}) dibuka dari pusat layanan pelanggan.`,
+    targetId: threadId,
+    level: 'info'
+  });
+};
+
+export const logChatReplied = (
+  threadId: string,
+  customerName: string,
+  actor: string = 'Customer Service'
+) => {
+  return logActivity({
+    category: 'OPERATIONAL',
+    action: 'REPLY_CHAT',
+    actor,
+    title: 'Balasan Chat Pelanggan Terkirim',
+    description: `Balasan dikirim ke percakapan ${customerName} (thread ${threadId}).`,
+    targetId: threadId,
+    level: 'success'
+  });
+};
+
+export const logChatStatusUpdated = (
+  threadId: string,
+  status: string,
+  actor: string = 'Customer Service'
+) => {
+  return logActivity({
+    category: 'OPERATIONAL',
+    action: 'UPDATE_CHAT_STATUS',
+    actor,
+    title: 'Status Percakapan Diperbarui',
+    description: `Thread ${threadId} diubah statusnya menjadi "${status}".`,
+    targetId: threadId,
+    level: status === 'Selesai' ? 'success' : 'info'
+  });
+};
+
+export const logChatDeleted = (threadId: string, customerName: string, actor: string = 'Customer Service') => {
+  return logActivity({
+    category: 'OPERATIONAL',
+    action: 'DELETE_CHAT_THREAD',
+    actor,
+    title: 'Percakapan Pelanggan Dihapus',
+    description: `Thread ${threadId} milik ${customerName} dihapus dari inbox CS.`,
+    targetId: threadId,
+    level: 'danger'
+  });
+};
+
+/* ==========================================================================
+ * Manajemen Pengguna Admin (RBAC)
+ * ========================================================================== */
+export const logUserCreated = (
+  username: string,
+  role: string,
+  actor: string = 'Owner'
+) => {
+  return logActivity({
+    category: 'AUTH',
+    action: 'CREATE_USER',
+    actor,
+    title: 'Akun Pengguna Baru Dibuat',
+    description: `Akun "${username}" dengan hak akses ${role} berhasil ditambahkan ke sistem.`,
+    targetId: username,
+    details: { role },
+    level: 'success'
+  });
+};
+
+export const logUserUpdated = (
+  username: string,
+  detail: string,
+  actor: string = 'Owner'
+) => {
+  return logActivity({
+    category: 'AUTH',
+    action: 'UPDATE_USER',
+    actor,
+    title: 'Akun Pengguna Diperbarui',
+    description: `Akun "${username}" diperbarui (${detail}).`,
+    targetId: username,
+    level: 'warning'
+  });
+};
+
+export const logUserDeleted = (username: string, role: string, actor: string = 'Owner') => {
+  return logActivity({
+    category: 'AUTH',
+    action: 'DELETE_USER',
+    actor,
+    title: 'Akun Pengguna Dihapus',
+    description: `Akun "${username}" dengan hak akses ${role} dihapus dari sistem.`,
+    targetId: username,
+    level: 'danger'
+  });
+};
+
+/* ==========================================================================
+ * Laporan & Keuangan
+ * ========================================================================== */
+export const logReportExported = (
+  periodLabel: string,
+  totalRows: number,
+  actor: string = 'Admin Keuangan'
+) => {
+  return logActivity({
+    category: 'OPERATIONAL',
+    action: 'EXPORT_REPORT',
+    actor,
+    title: 'Unduh Laporan Keuangan & Operasional',
+    description: `Laporan periode ${periodLabel} (${totalRows} resi) berhasil diekspor ke Excel.`,
+    level: 'info'
+  });
+};

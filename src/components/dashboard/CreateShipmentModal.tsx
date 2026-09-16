@@ -127,7 +127,6 @@ export const CreateShipmentModal: React.FC<CreateShipmentModalProps> = ({
   const [asuransi, setAsuransi] = useState<number>(5000);
   const [usePpn, setUsePpn] = useState<boolean>(true);
   const [usePph, setUsePph] = useState<boolean>(false);
-  const [hargaBarang, setHargaBarang] = useState<number>(1500000);
 
   // Status & Notes
   const [statusPengiriman, setStatusPengiriman] = useState<ShipmentStatus>('Diproses');
@@ -158,12 +157,13 @@ export const CreateShipmentModal: React.FC<CreateShipmentModalProps> = ({
   const totalOngkirPokok = Math.round(chargeableWeight * tarifKg);
 
   // Taxes
-  const ppnNominal = usePpn ? Math.round(hargaBarang * 0.011) : 0;
+  const taxableShippingTotal = totalOngkirPokok + biayaPacking + asuransi + biayaTambahan;
+  const ppnNominal = usePpn ? Math.round(taxableShippingTotal * 0.011) : 0;
   const pphNominal = usePph ? Math.round(totalOngkirPokok * 0.02) : 0;
 
   // Grand Total Calculation matching Image 3 breakdown
   // Total Bayar Tagihan Seluruh Pengiriman
-  const grandTotal = hargaBarang + totalOngkirPokok + biayaPacking + asuransi + biayaTambahan + ppnNominal - pphNominal;
+  const grandTotal = taxableShippingTotal + ppnNominal - pphNominal;
 
   // Handle Preset Route Selected
   const handleSelectRoutePreset = (routeId: string) => {
@@ -260,7 +260,6 @@ export const CreateShipmentModal: React.FC<CreateShipmentModalProps> = ({
       panjang,
       lebar,
       tinggi,
-      hargaBarang,
       biayaPacking,
       asuransi,
       ppn: ppnNominal,
@@ -887,32 +886,9 @@ export const CreateShipmentModal: React.FC<CreateShipmentModalProps> = ({
           {/* 7. DARK NAVY BREAKDOWN SUMMARY BOX (EXACT MATCH IMAGE 3) */}
           <div className="bg-[#040C22] text-white rounded-2xl p-4 sm:p-5 border-2 border-blue-900 shadow-xl space-y-2.5">
             <div className="flex items-center justify-between text-xs py-1 border-b border-blue-950">
-              <span className="font-bold text-slate-300">Tipe Layanan:</span>
-              <span className="font-extrabold text-white tracking-wider">PENJUALAN / PENGIRIMAN</span>
-            </div>
-
-            <div className="flex items-center justify-between text-xs py-1 border-b border-blue-950">
               <span className="font-bold text-slate-300">Jumlah Barang / Colly:</span>
               <span className="font-mono font-extrabold text-amber-300">
                 {colly} Koli (Colly)
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between text-xs py-1 border-b border-blue-950">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-slate-300">Harga Barang:</span>
-                <input
-                  type="number"
-                  min="0"
-                  step="50000"
-                  value={hargaBarang}
-                  onChange={(e) => setHargaBarang(Math.max(0, parseInt(e.target.value) || 0))}
-                  className="bg-blue-950/80 border border-blue-800 rounded px-2 py-0.5 text-[11px] font-mono text-blue-200 w-28 text-right"
-                  title="Nilai pertanggungan barang"
-                />
-              </div>
-              <span className="font-mono font-extrabold text-slate-100">
-                Rp {hargaBarang.toLocaleString('id-ID')}
               </span>
             </div>
 

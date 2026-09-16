@@ -159,7 +159,117 @@ export interface PricelistRouteItem {
   leadTime: string;
 }
 
-export type DashboardTab = 'overview' | 'shipments' | 'orders' | 'partners' | 'rates' | 'integration' | 'admin' | 'invoices' | 'logs';
+export type DashboardTab = 'overview' | 'shipments' | 'orders' | 'partners' | 'rates' | 'integration' | 'admin' | 'invoices' | 'logs' | 'customers' | 'reports' | 'chat' | 'users';
+
+/* ==========================================================================
+ * Multi-user Admin & Role Based Access Control
+ * ========================================================================== */
+export type UserRole = 'owner' | 'admin' | 'operator' | 'viewer';
+
+export interface AdminUser {
+  id: string;
+  username: string;
+  nama: string;
+  email?: string;
+  role: UserRole;
+  password: string;
+  active: boolean;
+  createdAt: string;
+  createdBy?: string;
+  lastLogin?: string;
+}
+
+/* ==========================================================================
+ * Master Pelanggan (Customer Database)
+ * ========================================================================== */
+export type CustomerSegment = 'Retail' | 'B2B / Korporat' | 'Mitra Agen';
+
+export interface Customer {
+  id: string;
+  nama: string;
+  perusahaan?: string;
+  telepon: string;
+  email?: string;
+  kota: string;
+  alamat?: string;
+  segmen: CustomerSegment;
+  catatan?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+/** Customer row enriched with derived statistics from shipments/orders/invoices */
+export interface CustomerWithStats extends Customer {
+  totalShipments: number;
+  totalSpend: number;
+  totalWeight: number;
+  lastShipmentDate?: string;
+  bookingCount: number;
+}
+
+/* ==========================================================================
+ * Pusat Chat / Customer Service
+ * ========================================================================== */
+export type ChatThreadStatus = 'Baru' | 'Aktif' | 'Selesai';
+
+export interface ChatMessage {
+  id: string;
+  dari: 'customer' | 'admin';
+  isi: string;
+  waktu: string;
+  pengirim?: string;
+}
+
+export interface ChatThread {
+  id: string;
+  customerName: string;
+  customerPhone: string;
+  subject: string;
+  resi?: string;
+  orderId?: string;
+  moda?: ShipmentMode;
+  rute?: string;
+  status: ChatThreadStatus;
+  messages: ChatMessage[];
+  unreadAdmin: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/* ==========================================================================
+ * Laporan & Keuangan
+ * ========================================================================== */
+export type ReportPeriodPreset = 'hari-ini' | '7-hari' | '30-hari' | 'bulan-ini' | 'custom';
+
+export interface ReportFilters {
+  preset: ReportPeriodPreset;
+  startDate: string;
+  endDate: string;
+  moda: 'Semua' | ShipmentMode;
+  status: 'Semua' | ShipmentStatus;
+}
+
+export interface ReportSummary {
+  totalRevenue: number;
+  totalShipments: number;
+  totalWeight: number;
+  totalColly: number;
+  averagePerShipment: number;
+  totalPpn: number;
+  totalPph: number;
+  invoicedTotal: number;
+  paidTotal: number;
+  unpaidTotal: number;
+  outstandingTotal: number;
+}
+
+export interface ReportGroupRow {
+  label: string;
+  shipments: number;
+  weight: number;
+  revenue: number;
+  share: number;
+}
 
 export type LogCategory = 'RESI' | 'ORDER' | 'INVOICE' | 'PARTNER' | 'AUTH' | 'SYSTEM' | 'OPERATIONAL';
 
