@@ -5,7 +5,7 @@
   "type": "module",
   "packageManager": "npm@10.9.2",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
